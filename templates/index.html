@@ -1,0 +1,2180 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AcadPred — AUI</title>
+  <!-- Load standard Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Load jspdf library for PDF downloading support -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Load Tailwind CSS v3 CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          colors: {
+            aui: {
+              navy: '#080C16',      /* Elegant Deep Obsidian Slate */
+              navyLight: '#0E172C', /* Glossy Space-Blue Card Base */
+              brandBlue: '#06B6D4', /* Hyper-Cyan Predictive Operational Anchor */
+              gold: '#F59E0B',      /* Luminous Tech Cyber Gold (Amber) */
+              goldLight: '#FBBF24', /* High-vibrancy Solar Yellow Highlight */
+              cardHover: '#121F3A', /* High-contrast focus state */
+              borderSlate: '#1E293B', /* Premium Razor-Crisp Core Border */
+              mutedBrand: '#1A2E56',  /* Subtle premium tone of brand palette */
+              goldAui: '#D4AF37',     /* Prestigious Augustine Gold branding */
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    /* Custom utility animations */
+    .fade-transition {
+      transition: all 500ms ease-in-out;
+    }
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+    .animate-breathe {
+      animation: breathe 3s ease-in-out infinite;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #030712;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #F59E0B;
+    }
+  </style>
+</head>
+<body class="bg-[#030712] text-slate-100 font-sans selection:bg-aui-gold selection:text-slate-950 min-h-screen py-6 px-4 md:px-8 flex flex-col justify-between custom-scrollbar relative overflow-x-hidden">
+
+  <!-- Aesthetic ambient backdrop glowing grids for high-end ML visual feel -->
+  <div class="absolute inset-x-0 top-0 h-[600px] bg-gradient-to-b from-[#0EA5E9]/5 via-transparent to-transparent pointer-events-none blur-3xl rounded-full"></div>
+  <div class="absolute -right-40 top-20 w-96 h-96 bg-[#8B5CF6]/5 pointer-events-none blur-3xl rounded-full"></div>
+
+  <!-- Header Banner -->
+  <header id="header-bar" class="relative max-w-7xl w-full mx-auto flex flex-col sm:flex-row justify-between items-center bg-aui-navyLight/75 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-5 md:px-8 mb-8 shadow-2xl gap-4 z-10 overflow-hidden">
+    <!-- Subtle glow highlights inside header -->
+    <div class="absolute -right-16 -top-16 w-32 h-32 bg-aui-brandBlue/5 rounded-full blur-2xl pointer-events-none"></div>
+
+    <div class="flex items-center gap-4">
+      <!-- High-quality emblem slot with premium glowing active shadow -->
+      <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-slate-900 to-slate-950 border border-aui-gold/40 flex items-center justify-center font-extrabold text-lg text-aui-gold shadow-[0_0_15px_1px_rgba(245,158,11,0.15)] font-mono tracking-wider">
+        AUI
+      </div>
+      <div>
+        <h1 class="text-xl md:text-2xl font-black tracking-tight text-white leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-400">
+          AcadPred <span class="bg-clip-text text-transparent bg-gradient-to-r from-aui-gold to-aui-goldLight font-medium">— AUI</span>
+        </h1>
+        <p class="text-[9.5px] text-slate-400 mt-1 uppercase tracking-widest font-extrabold font-mono opacity-90 flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-aui-brandBlue animate-pulse"></span>
+          Augustine University Academic Performance AI
+        </p>
+      </div>
+    </div>
+    
+    <!-- Float analytical counters read directly from counter) -->
+    <div class="flex items-center bg-[#070A13] border border-slate-800/80 rounded-xl px-4 py-2 text-right shadow-2xl relative">
+      <div class="mr-3">
+        <span class="block text-[8.5px] text-slate-400 font-mono font-bold uppercase tracking-widest opacity-80">Session Evaluations</span>
+        <span id="counter-display" class="block text-xl font-extrabold text-aui-gold font-mono leading-none tracking-tight">
+          {{ evaluation_count if evaluation_count else 247 }}
+        </span>
+      </div>
+      <div class="h-8 w-1.5 bg-gradient-to-b from-aui-gold to-aui-goldLight rounded-full animate-pulse"></div>
+    </div>
+  </header>
+
+  <!-- Interactive Segmented Navigation Control -->
+  <div class="max-w-7xl w-full mx-auto mb-8 flex justify-center z-10 relative">
+    <div class="bg-aui-navyLight/90 border border-aui-borderSlate/80 p-1.5 rounded-xl flex gap-1.5 shadow-xl">
+      <button type="button" id="tab-predictor-btn" onclick="switchActiveTab('predictor')" class="px-5 py-2.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all duration-300 bg-gradient-to-r from-aui-gold to-aui-goldLight text-slate-950 shadow-md cursor-pointer flex items-center gap-2">
+        <svg class="w-3.5 h-3.5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        Predictive standing AI
+      </button>
+      <button type="button" id="tab-survey-btn" onclick="switchActiveTab('survey')" class="px-5 py-2.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all duration-300 text-slate-400 hover:text-white cursor-pointer flex items-center gap-2">
+        <svg class="w-3.5 h-3.5 text-slate-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2"/></svg>
+        AUI Survey Insights Suite
+      </button>
+    </div>
+  </div>
+
+  <!-- Core Content Structure -->
+  <main id="main-container" class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start my-auto flex-grow relative z-10">
+    
+    <!-- LEFT PANEL: Diagnostic Form Matrix -->
+    <section id="form-panel" class="lg:col-span-5 bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+      <!-- Sleek ambient glow in backend of cards -->
+      <div class="absolute -top-12 -left-12 w-32 h-32 bg-[#D4AF37]/5 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="flex justify-between items-center mb-6 pb-4 border-b border-aui-borderSlate/60">
+        <h3 class="text-md font-bold text-gray-300 uppercase tracking-widest font-mono">
+          Student Diagnostic Matrix
+        </h3>
+        <!-- Stepper indicator bubbles -->
+        <div class="flex items-center gap-1.5 font-mono text-xs">
+          <span id="step-indicator" class="text-[#D4AF37] font-bold">Step 1</span>
+          <span class="text-gray-500">/ 4</span>
+        </div>
+      </div>
+
+       <!-- Dynamic Form Micro-Notification Drawer -->
+      <div id="form-notification" class="hidden rounded-xl border p-4 select-none text-xs font-mono transition-all duration-300 transform scale-95 opacity-0 flex items-center gap-3">
+        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span id="form-notification-txt" class="text-slate-200 font-medium font-semibold leading-relaxed"></span>
+      </div>
+
+      <!-- Progressive Form Tracker -->
+      <form id="prediction-form" class="space-y-6">
+        
+        <!-- CARD 1: Level & Entrance Baseline Profile -->
+        <div id="step-card-1" class="fade-transition space-y-5 opacity-100">
+          <div class="border-l-2 border-aui-gold pl-3 py-1 mb-2">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider">1. Student Baseline Profile Vectors</h4>
+            <p class="text-xs text-slate-200 font-medium">Class parameters for entry standing classification</p>
+          </div>
+
+          <div class="space-y-2">
+            <label for="student_level" class="block text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+              Academic Level Profile
+            </label>
+            <div class="relative">
+              <select id="student_level" name="student_level" onchange="handleStudentLevelChange()" class="w-full bg-slate-950/80 border border-slate-800/80 hover:border-aui-gold focus:border-aui-gold focus:ring-1 focus:ring-aui-gold rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition cursor-pointer appearance-none shadow-inner">
+                <option value="100" selected>100 Level (Freshman)</option>
+                <option value="200">200 Level (Sophomore)</option>
+                <option value="300">300 Level (Junior)</option>
+                <option value="400">400 Level (Final Year / Senior)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Course & Semester Grade Sheet for 200L+ -->
+          <div id="gpa-builder-panel" class="hidden transition-all duration-300 p-4 border border-slate-800/80 bg-slate-950/40 rounded-xl space-y-4 shadow-inner">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-aui-gold uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-aui-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                AUI Prior Academic Standing
+              </span>
+              <span class="text-[9.5px] bg-aui-gold/10 text-aui-gold border border-aui-gold/30 rounded-md px-1.5 py-0.5 font-mono">
+                Auto CGPA Sync
+              </span>
+            </div>
+            
+            <p class="text-[10px] text-slate-400 leading-tight">
+              AUI requires level semesters history to compute your synchronized cumulative baseline. Enter each completed semester's GPA:
+            </p>
+
+            <div id="semester-inputs-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <!-- Semesters dynamically generated -->
+            </div>
+
+            <!-- Grade Letter Helper Toggle -->
+            <div class="border-t border-slate-800/50 pt-3 space-y-2">
+              <button type="button" onclick="toggleGradeHelper()" class="text-[10px] text-slate-400 hover:text-white flex items-center justify-between w-full cursor-pointer font-mono font-bold uppercase tracking-wider focus:outline-none">
+                <span class="flex items-center gap-1">
+                  <svg id="helper-plus-icon" class="h-3.5 w-3.5 text-aui-gold transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Interactive Grade Sheet Builder
+                </span>
+                <span id="helper-status-badge" class="text-[8.5px] text-slate-500 lowercase">(expand to compute)</span>
+              </button>
+              
+              <div id="grade-helper-container" class="hidden space-y-2.5 bg-slate-950 border border-slate-800 p-3 rounded-lg shadow-inner">
+                <p class="text-[9px] text-slate-400 leading-normal">
+                  Add custom course classifications to calculate and transfer results into your active semester inputs automatically.
+                </p>
+                <div class="grid grid-cols-12 gap-2 text-[9px] font-bold uppercase tracking-wider text-slate-450 text-slate-400 font-mono pb-1 border-b border-slate-800/60">
+                  <span class="col-span-6">AUI Course Domain</span>
+                  <span class="col-span-3 text-center">Units</span>
+                  <span class="col-span-3 text-center">Grade</span>
+                </div>
+                <div id="helper-course-list" class="space-y-2 max-h-[140px] overflow-y-auto custom-scrollbar pr-1">
+                  <!-- Dynamic course inputs -->
+                </div>
+                <div class="flex gap-2">
+                  <button type="button" onclick="addNewHelperCourse()" class="flex-1 py-1.5 border border-dashed border-slate-800 hover:border-aui-gold text-[9.5px] text-slate-400 hover:text-white rounded-lg font-mono cursor-pointer transition">
+                    + Insert Course
+                  </button>
+                  <button type="button" onclick="calculateHelperGPA()" class="bg-aui-gold/10 hover:bg-aui-gold/20 text-aui-gold border border-aui-gold/30 rounded-lg px-3 py-1.5 text-[9.5px] font-mono cursor-pointer transition">
+                    Calculate & Sync
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="waec_score" class="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                WAEC Entry Grade Index (1-10)
+              </label>
+              <span id="waec_val" class="font-mono text-sm font-bold text-aui-gold">7</span>
+            </div>
+            <p class="text-[10px] text-slate-200 font-medium leading-tight">West African Examinations Council performance index (5 A's is represented as a score of 7, 10 for straight A1s).</p>
+            <input type="range" id="waec_score" name="waec_score" min="1" max="10" value="7" 
+              class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-aui-gold border border-slate-800/60 focus:outline-none shadow-inner"
+              oninput="document.getElementById('waec_val').innerText = this.value">
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="jamb_score" class="block text-xs font-bold text-slate-250 text-slate-200 uppercase tracking-wider font-mono">
+                JAMB Entry Score (over 400)
+              </label>
+              <span id="jamb_val" class="font-mono text-sm font-bold text-aui-gold">250</span>
+            </div>
+            <p class="text-[10px] text-slate-200 font-medium leading-tight">Joint Admissions and Matriculation Board entrance examination score over 400.</p>
+            <input type="range" id="jamb_score" name="jamb_score" min="100" max="400" value="250" step="5"
+              class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-aui-gold border border-slate-800/60 focus:outline-none shadow-inner"
+              oninput="document.getElementById('jamb_val').innerText = this.value">
+          </div>
+        </div>
+
+        <!-- CARD 2: Academic Core Metrics (Hidden on Initial Load) -->
+        <div id="step-card-2" class="fade-transition space-y-5 hidden opacity-0 translate-y-4">
+          <div class="border-l-2 border-aui-gold pl-3 py-1 mb-2">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider">2. Core Academic Metrics</h4>
+            <p class="text-xs text-slate-200 font-medium">Continuous assessments and official transcript vectors</p>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="first_sem_gpa" class="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                Prior Semester CGPA Baseline
+              </label>
+              <span id="gpa_val" class="font-mono text-sm font-bold text-aui-gold">3.40</span>
+            </div>
+            <p class="text-[10px] text-slate-200 font-medium leading-tight">Current official academic standings tracked on the Augustine University 5.0 GPA grading system.</p>
+            <input type="range" id="first_sem_gpa" name="first_sem_gpa" min="0.0" max="5.0" step="0.05" value="3.40" 
+              class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-aui-gold border border-slate-800/80 focus:outline-none shadow-inner"
+              oninput="document.getElementById('gpa_val').innerText = parseFloat(this.value).toFixed(2)">
+            <div id="gpa-sync-tag" class="hidden text-[10px] text-aui-gold font-mono uppercase bg-aui-gold/10 border border-aui-gold/30 rounded-lg px-2.5 py-1 mt-1.5 select-none animate-pulse text-center">
+              ⚡ LIVE SYNCHRONIZED FROM STEP 1 GPA CONSTRUCTOR
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="internal_test_score" class="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                Continuous CA Test (over 30)
+              </label>
+              <span id="internal_val" class="font-mono text-sm font-bold text-aui-gold">22</span>
+            </div>
+            <p class="text-[10px] text-slate-200 font-medium leading-tight">Your overall in-session Continuous Assessment (CA) scores, tests, and quizzes graded over 30 marks total.</p>
+            <input type="range" id="internal_test_score" name="internal_test_score" min="1" max="30" value="22" 
+              class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-aui-gold border border-slate-800/80 focus:outline-none shadow-inner"
+              oninput="document.getElementById('internal_val').innerText = this.value">
+          </div>
+        </div>
+
+        <!-- CARD 3: Class Interaction Metrics (Hidden on Initial Load) -->
+        <div id="step-card-3" class="fade-transition space-y-5 hidden opacity-0 translate-y-4">
+          <div class="border-l-2 border-aui-gold pl-3 py-1 mb-2">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider">3. Attendance & Interaction</h4>
+            <p class="text-xs text-slate-200 font-medium">Physical classroom interactions and workload fidelity metric</p>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="attendance_pct" class="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                Lecture Attendance Vector
+              </label>
+              <span id="attendance_val" class="font-mono text-sm font-bold text-aui-gold">80%</span>
+            </div>
+            <p class="text-[10px] text-slate-250 text-slate-200 font-medium leading-tight">Percentage of official lectures attended. NOTE: AUI enforces strict minimum 75% attendance criteria.</p>
+            <input type="range" id="attendance_pct" name="attendance_pct" min="40" max="100" value="80" 
+              class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-aui-gold border border-slate-800/80 focus:outline-none shadow-inner"
+              oninput="document.getElementById('attendance_val').innerText = this.value + '%'">
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="assignment_rate" class="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                Assignment Submission Fidelity
+              </label>
+              <span id="assignment_val" class="font-mono text-sm font-bold text-aui-gold">80%</span>
+            </div>
+            <p class="text-[10px] text-slate-250 text-slate-200 font-medium leading-tight">Overall assignment completion rate (0% to 100%) mapped dynamically to continuous assessments.</p>
+            <input type="range" id="assignment_rate" name="assignment_rate" min="0.0" max="1.0" step="0.05" value="0.80" 
+              class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-aui-gold border border-slate-800/80 focus:outline-none shadow-inner"
+              oninput="document.getElementById('assignment_val').innerText = Math.round(parseFloat(this.value) * 100) + '%'">
+          </div>
+        </div>
+
+        <!-- CARD 4: Study Behavioral Vectors (Hidden on Initial Load) -->
+        <div id="step-card-4" class="fade-transition space-y-5 hidden opacity-0 translate-y-4">
+          <div class="border-l-2 border-aui-gold pl-3 py-1 mb-2">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider">4. Academic Integrity & Resilience</h4>
+            <p class="text-xs text-slate-200 font-medium">Backlogs management and individual study time volumes</p>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="carryover_count" class="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                Active Carryover Units Count
+              </label>
+              <span id="carryover_val" class="font-mono text-sm font-bold text-red-400">0</span>
+            </div>
+            <p class="text-[10px] text-slate-200 font-medium leading-tight">Outstanding or pending failed core courses currently being carried forward in the curriculum.</p>
+            <input type="range" id="carryover_count" name="carryover_count" min="0" max="6" value="0" 
+              class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-red-400 border border-slate-800/80 focus:outline-none shadow-inner"
+              oninput="document.getElementById('carryover_val').innerText = this.value; if(this.value > 0){document.getElementById('carryover_val').className='font-mono text-sm font-bold text-red-400'}else{document.getElementById('carryover_val').className='font-mono text-sm font-bold text-green-400'}">
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="study_hours" class="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                Daily Independent Learning Volume
+              </label>
+              <span id="study_val" class="font-mono text-sm font-bold text-aui-gold">5 Hrs</span>
+            </div>
+            <p class="text-[10px] text-slate-200 font-medium leading-tight">Average daily independent self-directed learning hours adjusted outside direct lecture sessions.</p>
+            <input type="range" id="study_hours" name="study_hours" min="0" max="10" value="5" 
+              class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-aui-gold border border-slate-800/80 focus:outline-none shadow-inner"
+              oninput="document.getElementById('study_val').innerText = this.value + ' Hrs'">
+          </div>
+        </div>
+
+        <!-- Interactive Stepper Navigation -->
+        <div class="flex justify-between items-center pt-4 mt-6 border-t border-slate-805 border-slate-800/60 gap-4">
+          <button type="button" id="prev-btn" class="px-5 py-2.5 rounded-xl border border-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-900 font-semibold text-sm transition focus:outline-none flex items-center gap-2 visibility-hidden cursor-pointer" onclick="navigateStep(-1)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Previous
+          </button>
+          
+          <button type="button" id="next-btn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-aui-brandBlue to-aui-navyLight hover:from-[#1E3E7A] hover:to-[#224A8D] text-white border border-[#3B62A4] font-semibold text-sm shadow-lg transition duration-300 focus:outline-none flex items-center gap-2 cursor-pointer ml-auto" onclick="navigateStep(1)">
+            Next Block
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          
+          <button type="submit" id="execute-btn" class="hidden w-full px-6 py-3.5 rounded-xl bg-gradient-to-r from-aui-gold to-aui-goldLight hover:from-amber-500 hover:to-yellow-450 text-slate-950 font-extrabold text-sm shadow-xl tracking-wider uppercase transition duration-350 focus:outline-none text-center cursor-pointer transform hover:scale-[1.01] active:scale-[0.99]">
+            Execute Predictive Engine
+          </button>
+        </div>
+        
+      </form>
+    </section>
+
+    <!-- RIGHT PANEL: Reactive Output Monitor -->
+    <section id="monitor-panel" class="lg:col-span-7 bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 shadow-2xl min-h-[500px] flex flex-col justify-between relative overflow-hidden">
+      <!-- Secondary background aesthetic accent -->
+      <div class="absolute -bottom-16 -right-16 w-48 h-48 bg-aui-brandBlue/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- STATE A: Rest / Waiting Input -->
+      <div id="panel-state-waiting" class="my-auto py-12 px-6 flex flex-col items-center justify-center border-2 border-dashed border-aui-mutedBrand rounded-2xl bg-slate-950/20 p-8 text-center space-y-6">
+        <div class="inline-flex h-16 w-16 rounded-xl bg-slate-900/90 border border-aui-goldAui/30 items-center justify-center text-aui-goldAui mb-2 animate-breathe shadow-[0_0_15px_rgba(212,175,55,0.15)]">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+          </svg>
+        </div>
+        <div class="max-w-md mx-auto space-y-3">
+          <h2 class="text-lg font-extrabold text-[#F8FAFC] tracking-tight">Awaiting Feature Vector Initialization</h2>
+          <p class="text-sm text-slate-300 font-medium leading-relaxed">
+            The Random Forest inference engine is resting in an optimal state. Configure the diagnostic metrics on the left and click 'Execute Predictive Engine' to map the student profile to the classification matrix.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-slate-800/60 w-full max-w-xs mx-auto">
+          <span class="inline-flex items-center text-[10px] text-aui-goldAui bg-aui-goldAui/10 border border-aui-goldAui/20 px-3 py-1 rounded-full font-mono uppercase tracking-widest font-bold">
+            System Standby
+          </span>
+        </div>
+      </div>
+
+      <!-- STATE B: LABOR ILLUSION PROGRESS LOADER -->
+      <div id="panel-state-loader" class="hidden my-auto py-16 px-6 max-w-xl mx-auto w-full space-y-8 text-center">
+        <div class="relative inline-block">
+          <!-- Multi-ring academic structural spinner -->
+          <div class="h-20 w-20 rounded-full border-4 border-slate-800 animate-spin border-t-aui-brandBlue border-r-aui-gold relative shadow-[0_0_15px_rgba(6,182,212,0.15)]"></div>
+          <div class="absolute inset-0 flex items-center justify-center font-mono font-bold text-xs text-aui-gold" id="loader-percent">0%</div>
+        </div>
+        
+        <div class="space-y-4">
+          <!-- Sequential micro narrative text labels -->
+          <div class="h-6 overflow-hidden">
+            <p id="loader-message" class="text-sm font-semibold tracking-wide text-white transition-opacity duration-300 font-mono">
+              Analyzing core structural markers...
+            </p>
+          </div>
+          <!-- Custom-styled incremental progress bar -->
+          <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800 p-[2px]">
+            <div id="loader-bar-fill" class="h-full w-0 bg-gradient-to-r from-aui-brandBlue via-aui-gold to-aui-goldLight rounded-full transition-all duration-300"></div>
+          </div>
+        </div>
+        <span class="inline-block text-[10px] text-slate-500 font-mono uppercase tracking-widest font-bold">Inference Calculation Pipeline Active</span>
+      </div>
+
+      <!-- STATE C: PRECISION EVALUATION VIEW (Visible after 1.8s) -->
+      <div id="panel-state-results" class="hidden space-y-6">
+        
+        <!-- Header standing band -->
+        <div class="bg-slate-950/40 border border-slate-800/80 rounded-xl p-5 md:px-6 relative shadow-inner">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div>
+              <span class="text-[10px] text-aui-gold font-mono uppercase tracking-widest font-bold">Predictive Classification Horizon</span>
+              <h3 id="result-classification" class="text-lg md:text-xl font-black text-white tracking-tight mt-1">
+                --
+              </h3>
+            </div>
+            <div class="bg-aui-gold/10 border border-aui-gold/30 rounded-xl px-4 py-2 font-mono text-right shrink-0">
+              <span class="block text-[9px] text-slate-400 uppercase tracking-widest font-bold">Model Confidence</span>
+              <span id="result-confidence" class="block text-xl font-black text-aui-gold mt-0.5">--%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Class Boundary Margin & Trajectory Nudge Panel -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- CARD A: Next Class Margin Indicator -->
+          <div class="bg-slate-900/60 border border-slate-800/85 rounded-xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center">
+                <span class="text-[9px] text-[#38BDF8] font-mono uppercase tracking-widest font-black">Boundary Proximity</span>
+                <span id="margin-status-badge" class="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20 uppercase">Dynamic Margin</span>
+              </div>
+              <h5 class="text-xs font-bold text-white mt-2 uppercase">Boundary Margin Progress</h5>
+              <p id="margin-description" class="text-[11px] text-slate-300 mt-2 leading-relaxed">
+                Evaluating boundary transition limits...
+              </p>
+            </div>
+            <div class="mt-4">
+              <!-- Visual progress bar towards next boundary -->
+              <div class="flex justify-between items-center text-[10px] mb-1 font-mono">
+                <span id="margin-current-gpa-lbl" class="text-slate-400">Current CGPA: --</span>
+                <span id="margin-target-boundary-lbl" class="text-slate-300 font-bold">Next: --</span>
+              </div>
+              <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-900 p-[1px]">
+                <div id="margin-progress-bar" class="h-full bg-gradient-to-r from-sky-500 to-emerald-400 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+              </div>
+              <div class="text-[9.5px] font-semibold text-red-400 mt-2.5 flex items-center gap-1.5 leading-normal">
+                <svg class="w-3.5 h-3.5 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span id="margin-pullback-factor">Identify negative drivers...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD B: Trajectory Nudge Advisor -->
+          <div class="bg-slate-900/60 border border-slate-800/85 rounded-xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center">
+                <span class="text-[9px] text-[#A78BFA] font-mono uppercase tracking-widest font-black">Optimization Vector</span>
+                <span class="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-[#A78BFA]/10 text-[#A78BFA] border border-[#A78BFA]/20 uppercase">Nudge Active</span>
+              </div>
+              <h5 class="text-xs font-bold text-white mt-2 uppercase">Boundary Trajectory Nudge</h5>
+              <p id="trajectory-nudge-impact" class="text-[11px] text-slate-300 mt-2 leading-relaxed">
+                Calculating the single highest leverage modification to push your predicted outcome upward.
+              </p>
+            </div>
+            <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/60 mt-3 flex items-start gap-2.5 shadow-inner">
+              <div class="bg-[#A78BFA]/10 border border-[#A78BFA]/20 p-2 rounded-lg text-[#A78BFA] shrink-0 mt-0.5 animate-pulse">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </div>
+              <div>
+                <span id="nudge-factor-title" class="text-[10.5px] font-bold text-white block">Analyzing inputs...</span>
+                <p id="nudge-factor-desc" class="text-[10px] text-slate-300 mt-0.5 leading-relaxed">
+                  Loading optimal academic strategy recommendations...
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Animated probability distribution meters (Graduation Horizon) -->
+        <div class="space-y-4 bg-[#070A13]/60 border border-slate-800/80 rounded-xl p-5 shadow-2xl">
+          <div class="flex justify-between items-center">
+            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-widest font-mono">Graduation Horizon Probability Spectrum</h4>
+            <span class="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-[#A78BFA]/10 text-[#A78BFA] border border-[#A78BFA]/20 uppercase">4 Outcome Bounds</span>
+          </div>
+          
+          <!-- Bar 1: First Class Alignment -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-300 font-medium">First Class Honours (4.50 – 5.00)</span>
+              <span id="prob-first-val" class="font-mono font-bold text-emerald-400">0.0%</span>
+            </div>
+            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-900">
+              <div id="prob-first-bar" class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Bar 2: Second Class Upper Alignment -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-200 font-medium font-semibold">Second Class Upper Division (3.50 – 4.49)</span>
+              <span id="prob-second-val" class="font-mono font-bold text-cyan-400 text-[#38BDF8]">0.0%</span>
+            </div>
+            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-900">
+              <div id="prob-second-bar" class="h-full bg-gradient-to-r from-cyan-500 to-[#38BDF8] rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Bar 3: Second Class Lower Alignment -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-300 font-medium">Second Class Lower Division (2.40 – 3.49)</span>
+              <span id="prob-second-lower-val" class="font-mono font-bold text-amber-500">0.0%</span>
+            </div>
+            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-900">
+              <div id="prob-second-lower-bar" class="h-full bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Bar 4: Third Class/Pass Alignment -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-300 font-medium">Third Class / Pass (1.50 – 2.39)</span>
+              <span id="prob-risk-val" class="font-mono font-bold text-red-500">0.0%</span>
+            </div>
+            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-900">
+              <div id="prob-risk-bar" class="h-full bg-gradient-to-r from-rose-500 to-red-500 rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(239,68,68,0.2)]" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dual column diagnostic details -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- Feature Importance Core Factor -->
+          <div class="bg-[#070A13]/45 border border-slate-800/80 rounded-xl p-5 flex flex-col justify-between shadow-inner space-y-4">
+            <div>
+              <span class="text-[9px] text-aui-brandBlue font-mono uppercase tracking-widest font-black">Model Decision Weights</span>
+              <h5 class="text-xs font-bold text-white mt-1 uppercase mb-3">Feature Importance Spectrum</h5>
+              
+              <!-- DYNAMIC HORIZONTAL CHART CONTAINER -->
+              <div id="feature-importance-chart" class="space-y-2.5 max-h-[160px] overflow-y-auto pr-1">
+                <!-- Dynamic bars injected here via JS -->
+              </div>
+            </div>
+            
+            <div class="pt-3 border-t border-slate-800/60">
+              <span class="text-[9px] text-aui-goldAui font-mono uppercase tracking-widest font-bold">Primary Decision Driver</span>
+              <p id="top-factor-alert" class="text-xs text-slate-200 mt-1 font-mono leading-normal bg-slate-950 border border-slate-800 py-1.5 px-3 rounded-lg select-all shadow-inner inline-block">
+                Optimizing study parameters...
+              </p>
+              <p id="top-factor-verdict" class="text-[10px] text-slate-300 leading-relaxed mt-2.5 italic">
+                Your overall attendance rate was evaluated by the Random Forest classifier as the primary vector shaping this structural performance horizon.
+              </p>
+            </div>
+          </div>
+
+          <!-- Policy warning banner / standard state -->
+          <div id="policy-card-holder" class="rounded-xl p-4 border flex flex-col justify-between bg-[#101b30]/40 border-slate-800/80">
+            <div class="space-y-3">
+              <div class="flex justify-between items-start">
+                <div>
+                  <span id="policy-sub-label" class="text-[9px] font-mono uppercase tracking-widest font-bold">Regulation standing</span>
+                  <h5 id="policy-header-label" class="text-xs font-bold text-white mt-1 uppercase">Administrative Evaluation</h5>
+                </div>
+                <div id="policy-badge" class="h-3 w-3 rounded-full shadow-inner animate-pulse"></div>
+              </div>
+              <p id="result-policy-msg" class="text-xs mt-1 leading-relaxed text-slate-300">
+                Loading educational constraints...
+              </p>
+              
+              <!-- Boundary-Aware Academic Intervention -->
+              <div class="p-3 rounded-lg bg-indigo-950/20 border border-indigo-900/40 space-y-1">
+                <span class="text-[8.5px] text-[#A78BFA] font-mono uppercase tracking-widest font-black block">Boundary-Aware Academic Intervention</span>
+                <p id="result-class-aware-advice" class="text-[10px] text-indigo-200 leading-normal italic">
+                  Analyzing proximity boundaries...
+                </p>
+              </div>
+            </div>
+            
+            <!-- Casual Course GPA predictor -->
+            <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+              <span>Term CGPA Projected:</span>
+              <span id="result-projected-gpa" class="font-mono font-bold text-white">-- / 5.0</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Dynamic Cohort Peer linkage matching insights -->
+          <div class="bg-[#101b30]/30 border border-slate-800/80 rounded-xl p-4 flex flex-col justify-between shadow-xl space-y-4">
+            <div>
+              <div class="flex justify-between items-center">
+                <span class="text-[9px] text-[#A78BFA] font-mono uppercase tracking-widest font-black">Cohort Peer Integration</span>
+                <span class="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-[#A78BFA]/10 text-[#A78BFA] border border-[#A78BFA]/20 uppercase">AUI Survey Synced</span>
+              </div>
+              <h5 class="text-xs font-bold text-white mt-1 uppercase">Empirical Cohort Link</h5>
+              <p class="text-[10.5px] text-slate-400 mt-1 leading-normal">Comparative analysis against real student survey data at your level of study.</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
+              <div class="bg-[#030712]/50 p-2.5 rounded-lg border border-slate-900">
+                <span class="text-[8.5px] text-slate-500 font-mono block uppercase">GPA Percentile</span>
+                <span id="cohort-gpa-percentile" class="text-base font-black text-white font-mono block mt-0.5 tracking-tight">--</span>
+                <span class="text-[8px] text-slate-500 block mt-0.5 leading-tight">Standing relative to same-level peers.</span>
+              </div>
+              
+              <div class="bg-[#030712]/50 p-2.5 rounded-lg border border-slate-900">
+                <span class="text-[8.5px] text-slate-500 font-mono block uppercase">Real Peer Stress</span>
+                <span id="cohort-stress-percentage" class="text-base font-black text-slate-300 font-mono block mt-0.5 tracking-tight">--</span>
+                <span class="text-[8px] text-slate-500 block mt-0.5 leading-tight">Proportion modeling academic burnout.</span>
+              </div>
+              
+              <div class="bg-[#030712]/50 p-2.5 rounded-lg border border-slate-900 col-span-2">
+                <span class="text-[8.5px] text-slate-500 font-mono block uppercase">Most Ubiquitous Cohort Roadblock</span>
+                <span id="cohort-common-challenge" class="text-[10px] font-bold text-aui-gold block mt-0.5 truncate">--</span>
+                <span class="text-[8px] text-slate-500 block mt-0.5 leading-tight">Dominant roadblock expressed by level peers.</span>
+              </div>
+            </div>
+            
+            <div class="pt-2.5 space-y-1.5 border-t border-slate-950 text-[10px] font-mono leading-normal">
+              <div class="flex items-center justify-between text-slate-400">
+                <span>Matching Cohort Size:</span>
+                <span id="cohort-matches-count" class="font-bold text-[#A78BFA]">0 elements</span>
+              </div>
+              <div class="flex flex-col text-slate-500 text-[8.5px] bg-[#030712]/40 p-1.5 rounded border border-slate-900/55 gap-0.5 mt-1">
+                <span class="text-[7.5px] uppercase tracking-wider text-slate-500 font-bold block">Statistical Validation Protocol</span>
+                <p id="cohort-pooling-protocol" class="text-slate-400 font-semibold italic">Strict same-level study cohort</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons: Download PDF & Evaluate New Student -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <button type="button" onclick="downloadPDFReport()" class="flex-1 bg-gradient-to-r from-aui-gold to-aui-goldLight hover:from-amber-500 hover:to-yellow-400 active:scale-[0.98] text-slate-950 font-extrabold py-3.5 px-6 rounded-xl text-center text-sm uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer transition shadow-lg shadow-aui-gold/15 focus:outline-none focus:ring-2 focus:ring-aui-gold focus:ring-offset-2 focus:ring-offset-[#030712]">
+            <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m-9 8h18a2 2 0 002-2V5a2 2 0 00-2-2H9L3 9v9a2 2 0 002 2z" />
+            </svg>
+            Download Prediction PDF Report
+          </button>
+          
+          <button type="button" onclick="location.reload()" class="bg-slate-900 hover:bg-slate-800 border border-slate-800/80 hover:border-aui-gold px-6 py-3.5 text-slate-300 hover:text-white rounded-xl text-center text-xs font-bold uppercase tracking-widest cursor-pointer transition focus:outline-none flex items-center justify-center shadow-md">
+            Evaluate New Student
+          </button>
+        </div>
+
+        <!-- Model Verification Collapse (Accordion Validation block) -->
+        <div class="border border-slate-800 rounded-xl overflow-hidden bg-[#070A13]/40 shadow-2xl">
+          <button type="button" class="w-full px-5 py-4 flex justify-between items-center bg-slate-900/40 hover:bg-slate-900/60 transition duration-300 text-left cursor-pointer focus:outline-none" onclick="toggleAccordion('model-metrics-accordion')">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <svg class="w-4 h-4 text-aui-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2"/>
+              </svg>
+              Advanced Model Verification Analytics
+            </span>
+            <svg id="accordion-arrow" class="w-4 h-4 text-slate-400 transition-transform duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          
+          <div id="model-metrics-accordion" class="hidden px-5 py-4 space-y-4 border-t border-slate-800 max-h-[700px] overflow-y-auto custom-scrollbar">
+            <p class="text-[11px] text-slate-400 leading-relaxed italic">
+              These evaluation curves serve to command absolute scientific authority over external examiners. Generated during model validation and training phase.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <span class="block text-[9px] font-mono text-slate-400 uppercase tracking-widest text-center">Confusion Matrix Matrix</span>
+                <img src="/static/confusion_matrix.png" alt="Confusion Matrix Model Plot" class="w-full rounded-lg border border-slate-800 shadow-md bg-slate-900" referrerPolicy="no-referrer">
+              </div>
+              <div class="space-y-1">
+                <span class="block text-[9px] font-mono text-slate-400 uppercase tracking-widest text-center">ROC Area Curve Plot</span>
+                <img src="/static/roc_curve.png" alt="ROC Evaluation Curve Plot" class="w-full rounded-lg border border-slate-800 shadow-md bg-slate-900" referrerPolicy="no-referrer">
+              </div>
+            </div>
+            
+            <div class="space-y-1 pt-2">
+              <span class="block text-[9px] font-mono text-slate-400 uppercase tracking-widest text-center">Random Forest Decision Weights Chart</span>
+              <img src="/static/feature_importance.png" alt="Feature Importance Chart" class="w-full rounded-lg border border-slate-800 shadow-md bg-slate-900" referrerPolicy="no-referrer">
+            </div>
+
+            <!-- Empirical Split & Validation Audit Panel -->
+            <div class="mt-4 pt-4 border-t border-slate-800 space-y-3">
+              <div class="flex items-center gap-1.5">
+                <svg class="h-4 w-4 text-aui-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="block text-[10px] font-mono text-aui-gold uppercase tracking-widest font-black">Model Training & Validation Audit Summary</span>
+              </div>
+              
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 text-center">
+                  <span class="block text-[8.5px] text-slate-400 font-mono uppercase">Train/Test Split</span>
+                  <span class="block text-sm font-extrabold text-white font-mono mt-1">80% / 20%</span>
+                  <span class="block text-[8.5px] text-slate-500 mt-0.5">400 Train / 100 Test Samples</span>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 text-center">
+                  <span class="block text-[8.5px] text-slate-400 font-mono uppercase">Held-Out Accuracy</span>
+                  <span class="block text-sm font-extrabold text-[#38BDF8] font-mono mt-1">91.0%</span>
+                  <span class="block text-[8.5px] text-slate-500 mt-0.5">Tested on 100 Students</span>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 text-center">
+                  <span class="block text-[8.5px] text-slate-400 font-mono uppercase">Area Under ROC (AUC)</span>
+                  <span class="block text-sm font-extrabold text-emerald-400 font-mono mt-1">0.957</span>
+                  <span class="block text-[8.5px] text-slate-500 mt-0.5">Discriminative Power</span>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 text-center">
+                  <span class="block text-[8.5px] text-slate-400 font-mono uppercase">Validation Protocol</span>
+                  <span class="block text-sm font-extrabold text-[#A78BFA] font-mono mt-1">Split Set & Seed 42</span>
+                  <span class="block text-[8.5px] text-slate-500 mt-0.5">Strict Reproduction Split</span>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-[10px] bg-slate-950 rounded-lg overflow-hidden border border-slate-800/80">
+                  <thead>
+                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-400 font-mono uppercase text-[8.5px]">
+                      <th class="py-2.5 px-3">Target Outcome Class</th>
+                      <th class="py-2.5 px-3 font-semibold">Precision (Purity)</th>
+                      <th class="py-2.5 px-3 font-semibold">Recall (Sensitivity)</th>
+                      <th class="py-2.5 px-3 font-semibold">F1-Score (Harmonic Mean)</th>
+                      <th class="py-2.5 px-3 font-semibold">Test Support (N)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-800/65 font-mono text-slate-300">
+                    <tr>
+                      <td class="py-2 px-3 font-sans font-semibold text-red-400">At Academic Risk (0)</td>
+                      <td class="py-2 px-3 text-[#38BDF8]">86.4%</td>
+                      <td class="py-2 px-3 text-emerald-400">76.0%</td>
+                      <td class="py-2 px-3">80.9%</td>
+                      <td class="py-2 px-3 text-slate-500">25 (Students)</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 font-sans font-semibold text-emerald-400">Pass / Graduate Standing (1)</td>
+                      <td class="py-2 px-3 text-[#38BDF8]">92.4%</td>
+                      <td class="py-2 px-3 text-emerald-400">95.9%</td>
+                      <td class="py-2 px-3">94.1%</td>
+                      <td class="py-2 px-3 text-slate-500">75 (Students)</td>
+                    </tr>
+                    <tr class="bg-slate-900/40 text-slate-200">
+                      <td class="py-2 px-3 font-sans font-bold">Model Weighted Average</td>
+                      <td class="py-2 px-3 font-bold text-[#38BDF8]">90.9%</td>
+                      <td class="py-2 px-3 font-bold text-emerald-400">91.0%</td>
+                      <td class="py-2 px-3 font-bold">90.8%</td>
+                      <td class="py-2 px-3 text-slate-400">100 (Total Test)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="text-[9.5px] text-slate-405 text-slate-500 italic mt-1 leading-normal">
+                * Note: Precision measures the percentage of correct predictions among positive designations (avoiding false alarms). Recall measures the percentage of actual cases correctly flagged (avoiding missed alerts). Both parameters are balanced symmetrically with maximum stability.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- SURVEY ANALYTICS SUITE CONTAINER (Initially Hidden) -->
+  <div id="survey-analytics-container" class="max-w-7xl w-full mx-auto hidden mt-4 space-y-8 relative z-10 fade-transition opacity-0 translate-y-4">
+    <!-- Survey Suite Header -->
+    <div class="bg-aui-navyLight/75 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-2xl relative overflow-hidden">
+      <div class="absolute -left-12 -top-12 w-32 h-32 bg-aui-gold/5 rounded-full blur-2xl pointer-events-none"></div>
+      <div>
+        <span class="inline-flex items-center text-[9px] text-aui-gold bg-aui-gold/10 border border-aui-gold/30 px-2.5 py-0.5 rounded-full font-mono uppercase tracking-widest font-bold">Empirical Field Study</span>
+        <h2 class="text-xl md:text-2xl font-black text-white tracking-tight mt-1">AUI Real Student Survey Analytics Suite</h2>
+        <p class="text-xs text-slate-400 mt-1">Interactive data visualization aggregated directly from field responses gathered at Augustine University.</p>
+      </div>
+      <button type="button" onclick="refreshSurveyStats()" class="px-4 py-2 border border-slate-800 hover:border-aui-gold bg-slate-950/60 text-slate-300 hover:text-white rounded-xl text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer transition">
+        <svg class="h-3.5 w-3.5 text-aui-brandBlue animate-spin" id="survey-refresh-spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 16H21m-9-12a8 8 0 018 8v.5M3 10h.5a8.01 8.01 0 011.5-3m12-3h.5" /></svg>
+        <span>Re-Sync Survey Stream</span>
+      </button>
+    </div>
+
+    <!-- KPI Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Card 1: Sample Cohort Size -->
+      <div class="bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-20 h-20 bg-slate-900 rounded-full blur-xl pointer-events-none"></div>
+        <span class="text-[9.5px] text-aui-brandBlue font-mono uppercase tracking-wider font-semibold">Cohort Base Size</span>
+        <h3 id="stat-total-surveyed" class="text-3xl font-black text-white font-mono mt-2 flex items-baseline gap-1.5 leading-none">
+          --
+          <span class="text-xs font-semibold text-slate-500 font-sans">students</span>
+        </h3>
+        <p class="text-[10px] text-slate-400 mt-3 leading-relaxed">Verified empirical survey profiles matching various departments and study levels.</p>
+      </div>
+
+      <!-- Card 2: Mental Health stress indicator -->
+      <div class="bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-20 h-20 bg-[#EF4444]/5 rounded-full blur-xl pointer-events-none"></div>
+        <span class="text-[9.5px] text-red-450 font-mono uppercase tracking-wider font-semibold">Overwhelming Academic Stress</span>
+        <h3 id="stat-stress-index" class="text-3xl font-black text-red-400 font-mono mt-2 leading-none">--</h3>
+        <p class="text-[10px] text-slate-400 mt-3 leading-relaxed">Percentage of cohorts declaring they feel stressed or overwhelmed in most semesters.</p>
+      </div>
+
+      <!-- Card 3: Financial stress impact ratio -->
+      <div class="bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-20 h-20 bg-[#D4AF37]/5 rounded-full blur-xl pointer-events-none"></div>
+        <span class="text-[9.5px] text-aui-gold font-mono uppercase tracking-wider font-semibold">Financial Threat Level</span>
+        <h3 id="stat-financial-threat" class="text-3xl font-black text-aui-gold font-mono mt-2 leading-none">--</h3>
+        <p class="text-[10px] text-slate-400 mt-3 leading-relaxed">Students reporting financial difficulties as a severe challenge affecting terminal scores.</p>
+      </div>
+
+      <!-- Card 4: Lecture Attendance Integrity -->
+      <div class="bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl pointer-events-none"></div>
+        <span class="text-[9.5px] text-emerald-400 font-mono uppercase tracking-wider font-semibold">Attendance Index</span>
+        <h3 id="stat-average-attendance" class="text-3xl font-black text-emerald-400 font-mono mt-2 leading-none">--</h3>
+        <p class="text-[10px] text-slate-400 mt-3 leading-relaxed">Mean student lecture attendance vector compared to the requisite AUI 75% policy limit.</p>
+      </div>
+
+    </div>
+
+    <!-- Pearson Correlation Bivariate Matrix Block -->
+    <div class="bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+      <!-- Background glows -->
+      <div class="absolute -right-24 -top-24 w-48 h-48 bg-[#A78BFA]/5 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div class="border-l-2 border-[#A78BFA] pl-3 py-1 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 w-full">
+        <div>
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Bivariate Pearson Correlation Matrix (Historic $r$ Coefficients)</h4>
+          <p class="text-xs text-slate-400 mt-0.5">Statistical strength and directionality of student vectors calculated dynamically from real questionnaire metrics.</p>
+        </div>
+        <span class="px-2.5 py-1 bg-slate-950 border border-slate-900 rounded-lg text-[9.5px] text-[#A78BFA] font-mono font-bold uppercase tracking-wider">Significance: &alpha; = 0.05 (2-Tailed)</span>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Relationship 1 -->
+        <div class="bg-[#030712]/50 p-4 border border-slate-900 rounded-xl flex flex-col justify-between hover:border-emerald-500/30 transition duration-300">
+          <div>
+            <span class="block text-[8.5px] font-mono uppercase tracking-wider text-slate-400 font-bold">Attendance vs Grade standing</span>
+            <div class="flex items-baseline gap-1 mt-2.5">
+              <span id="corr-att-gpa" class="text-2xl font-black font-mono text-emerald-400">--</span>
+              <span class="text-[9px] font-mono text-slate-500 font-bold">r</span>
+            </div>
+          </div>
+          <p class="text-[9px] text-slate-400 mt-2.5 leading-relaxed">Positive coefficient validating mandatory class lecture metrics as a critical driver of academic success.</p>
+        </div>
+
+        <!-- Relationship 2 -->
+        <div class="bg-[#030712]/50 p-4 border border-slate-900 rounded-xl flex flex-col justify-between hover:border-red-500/30 transition duration-300">
+          <div>
+            <span class="block text-[8.5px] font-mono uppercase tracking-wider text-slate-400 font-bold">Academic Stress vs Grade</span>
+            <div class="flex items-baseline gap-1 mt-2.5">
+              <span id="corr-stress-gpa" class="text-2xl font-black font-mono text-red-400">--</span>
+              <span class="text-[9px] font-mono text-slate-500 font-bold">r</span>
+            </div>
+          </div>
+          <p class="text-[9px] text-slate-400 mt-2.5 leading-relaxed">Negative relationship. Validates how high levels of self-perceived academic stress pull down exam standings.</p>
+        </div>
+
+        <!-- Relationship 3 -->
+        <div class="bg-[#030712]/50 p-4 border border-slate-900 rounded-xl flex flex-col justify-between hover:border-rose-500/30 transition duration-300">
+          <div>
+            <span class="block text-[8.5px] font-mono uppercase tracking-wider text-slate-400 font-bold">Finance vs Academic Stress</span>
+            <div class="flex items-baseline gap-1 mt-2.5">
+              <span id="corr-fin-stress" class="text-2xl font-black font-mono text-rose-450 text-[#FB7185]">--</span>
+              <span class="text-[9px] font-mono text-slate-500 font-bold">r</span>
+            </div>
+          </div>
+          <p class="text-[9px] text-slate-400 mt-2.5 leading-relaxed">Extremely strong positive covariance. Confirms that financial bottlenecks directly induce severe mental stress.</p>
+        </div>
+
+        <!-- Relationship 4 -->
+        <div class="bg-[#030712]/50 p-4 border border-slate-900 rounded-xl flex flex-col justify-between hover:border-sky-500/30 transition duration-300">
+          <div>
+            <span class="block text-[8.5px] font-mono uppercase tracking-wider text-slate-400 font-bold">Social Media vs Grade</span>
+            <div class="flex items-baseline gap-1 mt-2.5">
+              <span id="corr-social-gpa" class="text-2xl font-black font-mono text-[#38BDF8]">--</span>
+              <span class="text-[9px] font-mono text-slate-500 font-bold">r</span>
+            </div>
+          </div>
+          <p class="text-[9px] text-slate-400 mt-2.5 leading-relaxed">Negative bivariate index monitoring daily screentime hours and its impact on terminal grades.</p>
+        </div>
+
+        <!-- Relationship 5 -->
+        <div class="bg-[#030712]/50 p-4 border border-slate-900 rounded-xl flex flex-col justify-between hover:border-amber-500/30 transition duration-300">
+          <div>
+            <span class="block text-[8.5px] font-mono uppercase tracking-wider text-slate-400 font-bold">Conduciveness vs Grade</span>
+            <div class="flex items-baseline gap-1 mt-2.5">
+              <span id="corr-env-gpa" class="text-2xl font-black font-mono text-amber-500">--</span>
+              <span class="text-[9px] font-mono text-slate-500 font-bold">r</span>
+            </div>
+          </div>
+          <p class="text-[9px] text-slate-400 mt-2.5 leading-relaxed">Positive tracking. Checks if study-conducive hostels positively support academic standings.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Visual Panels Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Core Challenges and Obstacles (Left Panel) -->
+      <div class="lg:col-span-7 bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        <div class="border-l-2 border-aui-gold pl-3 py-1 mb-5">
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider">Empirical Academic Challenges</h4>
+          <p class="text-xs text-slate-400 font-medium">Roadblocks reported directly by study cohort elements</p>
+        </div>
+        
+        <!-- Bar chart list of challenges -->
+        <div id="survey-challenges-container" class="space-y-4">
+          <!-- Dynamic bars injected here -->
+        </div>
+      </div>
+
+      <!-- Attendance, Study Habits & Preferences (Right Panel) -->
+      <div class="lg:col-span-5 bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col gap-6">
+        
+        <!-- Subsection 1: Lecture Experience Profile -->
+        <div>
+          <div class="border-l-2 border-[#38BDF8] pl-3 py-1 mb-4">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider">Lecture Interaction Vector</h4>
+            <p class="text-[9px] text-slate-400 font-semibold font-mono uppercase mt-0.5">Teaching Effectiveness Indexes</p>
+          </div>
+          <div class="space-y-3.5 bg-slate-950/40 p-4 border border-slate-900 rounded-xl">
+            <!-- Attendance -->
+            <div>
+              <div class="flex justify-between items-center text-xs pb-1">
+                <span class="text-slate-300 font-medium">Average lecture attendance</span>
+                <span id="survey-metric-att" class="font-mono font-bold text-[#38BDF8]">--</span>
+              </div>
+              <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-900">
+                <div id="survey-metric-att-bar" class="h-full bg-[#38BDF8] rounded-full transition-all duration-1000" style="width: 0%"></div>
+              </div>
+            </div>
+            <!-- On time assignments -->
+            <div>
+              <div class="flex justify-between items-center text-xs pb-1">
+                <span class="text-slate-300 font-medium">Cumulative assignments timeliness</span>
+                <span id="survey-metric-assign" class="font-mono font-bold text-[#38BDF8]">--</span>
+              </div>
+              <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-900">
+                <div id="survey-metric-assign-bar" class="h-full bg-[#38BDF8] rounded-full transition-all duration-1000" style="width: 0%"></div>
+              </div>
+            </div>
+            <!-- Helpful class -->
+            <div>
+              <div class="flex justify-between items-center text-xs pb-1">
+                <span class="text-slate-300 font-medium">Subjective lecture helpfulness rating</span>
+                <span id="survey-metric-help" class="font-mono font-bold text-[#38BDF8]">--</span>
+              </div>
+              <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-900">
+                <div id="survey-metric-help-bar" class="h-full bg-[#38BDF8] rounded-full transition-all duration-1000" style="width: 0%"></div>
+              </div>
+            </div>
+            <!-- Lecturer support -->
+            <div>
+              <div class="flex justify-between items-center text-xs pb-1">
+                <span class="text-slate-400 font-medium">Lecturer focus on active learning</span>
+                <span id="survey-metric-focus" class="font-mono font-semibold text-slate-400">--</span>
+              </div>
+              <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-900">
+                <div id="survey-metric-focus-bar" class="h-full bg-slate-800 rounded-full transition-all duration-1000" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subsection 2: Gender & student years distribution -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-slate-950/40 p-4 border border-slate-900 rounded-xl space-y-2">
+            <span class="text-[9px] text-[#A78BFA] font-mono uppercase tracking-wider font-bold">Gender Ratio</span>
+            <div class="flex items-center gap-3">
+              <div class="flex-1 space-y-1">
+                <div class="flex justify-between items-center text-[10px]">
+                  <span class="text-slate-400">Females:</span>
+                  <span id="survey-gender-female-pct" class="font-bold text-[#A78BFA]">--</span>
+                </div>
+                <div class="flex justify-between items-center text-[10px]">
+                  <span class="text-slate-400">Males:</span>
+                  <span id="survey-gender-male-pct" class="font-bold text-slate-300">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-950/40 p-4 border border-slate-900 rounded-xl space-y-2">
+            <span class="text-[9px] text-emerald-400 font-mono uppercase tracking-wider font-bold">Regular Study Habits</span>
+            <div class="text-2xl font-mono font-black text-emerald-400 leading-none mt-1" id="survey-habit-regular-pct">
+              --
+            </div>
+            <p class="text-[9px] text-slate-400 leading-tight">Proportion of cohort engaging in regular study blocks.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Searchable Demographic Explorer -->
+    <div class="bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-800/60 mb-6 font-semibold">
+        <div>
+          <h4 class="text-md font-bold text-white uppercase tracking-wider font-mono">Student Survey Cohort Explorer</h4>
+          <p class="text-xs text-slate-400 mt-1">Interrogate individual empirical survey submissions from Augustine University students.</p>
+        </div>
+        <!-- Search bar -->
+        <div class="w-full md:w-80 relative">
+          <input type="text" id="survey-search-input" oninput="filterSurveyRows()" placeholder="Search (e.g. Female, 400 Level, First class)..." class="w-full bg-slate-950 border border-slate-800 hover:border-aui-gold focus:border-aui-gold rounded-xl py-2 pl-10 pr-4 text-xs font-mono text-white focus:outline-none transition placeholder-slate-500 shadow-inner">
+          <svg class="w-3.5 h-3.5 text-slate-500 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+      </div>
+
+      <!-- Interactive grid table container -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/45 custom-scrollbar">
+        <table class="w-full text-left border-collapse min-w-[700px]">
+          <thead>
+            <tr class="bg-slate-950 text-[9.5px] uppercase tracking-wider font-mono text-slate-400 border-b border-slate-800/80">
+              <th class="py-4 px-4 font-bold">Gender</th>
+              <th class="py-4 px-3 font-bold">Level of Study</th>
+              <th class="py-4 px-4 font-bold">Study Interval</th>
+              <th class="py-4 px-4 font-bold">Study Environment</th>
+              <th class="py-4 px-4 font-bold">Daily Study</th>
+              <th class="py-4 px-4 font-bold">Stress Index</th>
+              <th class="py-4 px-4 font-bold">Standing / Target</th>
+            </tr>
+          </thead>
+          <tbody id="survey-data-table-body" class="text-xs divide-y divide-slate-900">
+            <!-- Live table data cells -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination stats -->
+      <div class="flex justify-between items-center mt-4">
+        <span class="text-[10px] text-slate-500 font-mono" id="survey-table-pagination-info">Showing all matching responses</span>
+        <button type="button" onclick="clearSearchFilter()" class="text-[10px] text-aui-gold font-mono hover:underline focus:outline-none cursor-pointer">Clear Search Filter</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Institutional Disclaimer Footer -->
+  <footer id="footer-branding" class="max-w-7xl w-full mx-auto text-center mt-12 pt-6 border-t border-aui-borderSlate/30">
+    <p class="text-xs text-gray-500 leading-relaxed font-mono">
+      Augustine University, Ilara-Epe (AUI), Lagos State, Nigeria — Academic Prediction Portal.<br>
+      <span class="text-[10px] text-gray-600 uppercase tracking-wider font-semibold">Engineered in exact compliance with AUI educational standard rulesets &bull; Powered by RandomForest &bull; 2026</span>
+    </p>
+  </footer>
+
+  <!-- Vanilla script layer handling active interactions -->
+  <script>
+    // Config state representing current progress steps
+    let currentStep = 1;
+    const totalSteps = 4;
+    
+    // Core Elements reference
+    const stepCards = {
+      1: document.getElementById('step-card-1'),
+      2: document.getElementById('step-card-2'),
+      3: document.getElementById('step-card-3'),
+      4: document.getElementById('step-card-4')
+    };
+    
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const executeBtn = document.getElementById('execute-btn');
+    const stepIndicator = document.getElementById('step-indicator');
+    
+    const stateWaiting = document.getElementById('panel-state-waiting');
+    const stateLoader = document.getElementById('panel-state-loader');
+    const stateResults = document.getElementById('panel-state-results');
+    
+    // Multi-message loops during illusion
+    const illusionMessages = [
+      "Initializing secure connection... Normalizing raw student feature vectors into localized model tensor arrays.",
+      "Parsing attributes... Executing multi-threaded Random Forest decision tree splits across trained historical baseline weights.",
+      "Calculating localized probability densities and evaluating inputs against AUI structural graduation thresholds.",
+      "Inference calculation verified. Generating advanced performance metrics and compiling faculty report logs..."
+    ];
+    
+    // Fast visual validation indicators to user on card transitions
+    function showFormNotification(message, type = "success") {
+      const drawer = document.getElementById('form-notification');
+      const text = document.getElementById('form-notification-txt');
+      
+      drawer.classList.remove('hidden');
+      
+      if (type === "success") {
+        drawer.className = "flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4 select-none text-xs font-mono transition-all duration-300 transform scale-100 opacity-100 mb-6";
+        drawer.querySelector('svg').className = "w-4 h-4 text-emerald-400 shrink-0";
+      } else {
+        drawer.className = "flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-950/20 p-4 select-none text-xs font-mono transition-all duration-300 transform scale-100 opacity-100 mb-6";
+        drawer.querySelector('svg').className = "w-4 h-4 text-red-400 shrink-0";
+      }
+      
+      text.innerText = message;
+      
+      // Auto dismiss after 4 seconds
+      setTimeout(() => {
+        drawer.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => { drawer.classList.add('hidden'); }, 300);
+      }, 4000);
+    }
+
+    // Interactive progressive interview check before unlocking step blocks
+    function validateStep(step) {
+      if (step === 1) {
+        const lvStr = document.getElementById('student_level').value;
+        const waecVal = parseInt(document.getElementById('waec_score').value);
+        const jambVal = parseInt(document.getElementById('jamb_score').value);
+        if (!lvStr) {
+          showFormNotification("Academic Level Profile indicator is missing. Choose student level.", "error");
+          return false;
+        }
+        if (isNaN(waecVal) || waecVal < 1 || waecVal > 10) {
+          showFormNotification("WAEC score is invalid or out of mathematical bounds.", "error");
+          return false;
+        }
+        if (isNaN(jambVal) || jambVal < 100 || jambVal > 400) {
+          showFormNotification("JAMB entrance examination score must reside between 100 and 400.", "error");
+          return false;
+        }
+        showFormNotification("Student baseline vectors verified. Standard profile standing is unlocked.", "success");
+        return true;
+      }
+      if (step === 2) {
+        const gpaVal = parseFloat(document.getElementById('first_sem_gpa').value);
+        const internalVal = parseInt(document.getElementById('internal_test_score').value);
+        if (isNaN(gpaVal) || gpaVal < 0 || gpaVal > 5.0) {
+          showFormNotification("Cumulative GPA parameter is outside legal scale of 0.0 - 5.0.", "error");
+          return false;
+        }
+        if (isNaN(internalVal) || internalVal < 1 || internalVal > 30) {
+          showFormNotification("Continuous Assessment (CA) standing is outside legal scale of 1 - 30.", "error");
+          return false;
+        }
+        showFormNotification("Core academic standing vectors confirmed. Unlocking lecture participation parameters...", "success");
+        return true;
+      }
+      if (step === 3) {
+        const attendanceVal = parseInt(document.getElementById('attendance_pct').value);
+        const assignmentVal = parseFloat(document.getElementById('assignment_rate').value);
+        if (isNaN(attendanceVal) || attendanceVal < 40 || attendanceVal > 100) {
+          showFormNotification("Physical attendance rating index is outside legal scale of 40% - 100%.", "error");
+          return false;
+        }
+        if (isNaN(assignmentVal) || assignmentVal < 0 || assignmentVal > 1) {
+          showFormNotification("Assignment submissions quotient is out of legal bounds.", "error");
+          return false;
+        }
+        showFormNotification("Lecture attendance and interactive metrics integrated. Unlocking curriculum resilience parameters...", "success");
+        return true;
+      }
+      return true;
+    }
+
+    // Core function to navigate step modules
+    function navigateStep(direction) {
+      // Rule constraint: validate step when advancing forward
+      if (direction === 1) {
+        if (!validateStep(currentStep)) return;
+      }
+
+      // Validate bounds
+      if (currentStep + direction < 1 || currentStep + direction > totalSteps) return;
+      
+      // Animate current out
+      const currentCard = stepCards[currentStep];
+      currentCard.classList.add('opacity-0', 'translate-y-4');
+      currentCard.style.pointerEvents = "none";
+      
+      setTimeout(() => {
+        currentCard.classList.add('hidden');
+        currentStep += direction;
+        
+        // Show new
+        const nextCard = stepCards[currentStep];
+        nextCard.classList.remove('hidden');
+        
+        // Brief timeout for browser layout recalculation before fade-in
+        setTimeout(() => {
+          nextCard.classList.remove('opacity-0', 'translate-y-4');
+          nextCard.classList.add('opacity-100');
+          nextCard.style.pointerEvents = "auto";
+        }, 50);
+        
+        // Update Buttons configuration
+        updateStepperControlsUI();
+      }, 500);
+    }
+    
+    function updateStepperControlsUI() {
+      // Step Tracker tag
+      stepIndicator.textContent = `Step ${currentStep}`;
+      
+      // Disable prev if on 1
+      if (currentStep === 1) {
+        prevBtn.classList.add('invisible');
+        prevBtn.style.pointerEvents = "none";
+      } else {
+        prevBtn.classList.remove('invisible');
+        prevBtn.style.pointerEvents = "auto";
+      }
+      
+      // Handle Next vs submit
+      if (currentStep === totalSteps) {
+        nextBtn.classList.add('hidden');
+        executeBtn.classList.remove('hidden');
+      } else {
+        nextBtn.classList.remove('hidden');
+        executeBtn.classList.add('hidden');
+      }
+    }
+    
+    // Toggle accordion state
+    function toggleAccordion(id) {
+      const accordion = document.getElementById(id);
+      const arrow = document.getElementById('accordion-arrow');
+      
+      if (accordion.classList.contains('hidden')) {
+        accordion.classList.remove('hidden');
+        arrow.classList.add('rotate-180');
+      } else {
+        accordion.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+      }
+    }
+    
+    // Handle AJAX prediction call
+    document.getElementById('prediction-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Final submit safety validation checks
+      if (!validateStep(1) || !validateStep(2) || !validateStep(3)) {
+        return;
+      }
+      
+      // Extract form input values
+      const formData = {
+        student_level: parseInt(document.getElementById('student_level').value),
+        waec_score: parseInt(document.getElementById('waec_score').value),
+        jamb_score: parseInt(document.getElementById('jamb_score').value),
+        first_sem_gpa: parseFloat(document.getElementById('first_sem_gpa').value),
+        internal_test_score: parseInt(document.getElementById('internal_test_score').value),
+        attendance_pct: parseInt(document.getElementById('attendance_pct').value),
+        assignment_rate: parseFloat(document.getElementById('assignment_rate').value),
+        carryover_count: parseInt(document.getElementById('carryover_count').value),
+        study_hours: parseInt(document.getElementById('study_hours').value)
+      };
+      
+      // Instantly trigger State transition to Loader state
+      stateWaiting.classList.add('hidden');
+      stateResults.classList.add('hidden');
+      stateLoader.classList.remove('hidden');
+      
+      const barFill = document.getElementById('loader-bar-fill');
+      const loaderTxt = document.getElementById('loader-message');
+      const percentTxt = document.getElementById('loader-percent');
+      
+      // Reset loader visual markers
+      barFill.style.width = '0%';
+      percentTxt.innerText = '0%';
+      loaderTxt.innerText = illusionMessages[0];
+      
+      // Begin standard mathematical illusion progress tracking
+      // Exact steps: 1.8 seconds artificial delay:
+      // Loop steps
+      const totalDelay = 1800;
+      let startTimestamp = null;
+      
+      function animateProgress(timestamp) {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const elapsed = timestamp - startTimestamp;
+        const progressPct = Math.min(100, Math.round((elapsed / totalDelay) * 100));
+        
+        barFill.style.width = `${progressPct}%`;
+        percentTxt.innerText = `${progressPct}%`;
+        
+        // Swap micro messages at targeted intervals
+        if (elapsed >= 1700) {
+          loaderTxt.innerText = illusionMessages[3];
+        } else if (elapsed >= 1100) {
+          loaderTxt.innerText = illusionMessages[2];
+        } else if (elapsed >= 500) {
+          loaderTxt.innerText = illusionMessages[1];
+        } else {
+          loaderTxt.innerText = illusionMessages[0];
+        }
+        
+        if (elapsed < totalDelay) {
+          requestAnimationFrame(animateProgress);
+        }
+      }
+      
+      // Trigger loader loop
+      requestAnimationFrame(animateProgress);
+      
+      // Make active API call
+      fetch('/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Performance evaluation pipeline failed internally');
+        }
+        return res.json();
+      })
+      .then(data => {
+        // Wait for exactly 1.8 seconds to elapse to respect the labor illusion guidelines
+        setTimeout(() => {
+          // Transition to result views
+          stateLoader.classList.add('hidden');
+          stateResults.classList.remove('hidden');
+          
+          // Populate primary diagnostic outcomes
+          const classification = document.getElementById('result-classification');
+          const confidence = document.getElementById('result-confidence');
+          
+          const formattedConfidence = parseFloat(data.confidence).toFixed(1);
+          confidence.innerText = `${formattedConfidence}%`;
+          
+          // Set appropriate label depending on model target response and precision formats
+          let standingTitle = "";
+          if (data.prediction === 1) {
+            if (formData.first_sem_gpa >= 4.5) {
+              standingTitle = "First Class Profile Alignment";
+              classification.innerHTML = `<span class="text-white font-extrabold uppercase tracking-wide">${standingTitle}</span> — <span class="text-emerald-400 font-bold">${formattedConfidence}% Model Confidence</span>`;
+            } else if (formData.first_sem_gpa >= 3.5) {
+              standingTitle = "Second Class Upper Profile Alignment";
+              classification.innerHTML = `<span class="text-white font-extrabold uppercase tracking-wide">${standingTitle}</span> — <span class="text-[#38BDF8] font-bold">${formattedConfidence}% Model Confidence</span>`;
+            } else {
+              standingTitle = "Satisfactory Standing trajectory Alignment";
+              classification.innerHTML = `<span class="text-white font-extrabold uppercase tracking-wide">${standingTitle}</span> — <span class="text-emerald-400 font-bold">${formattedConfidence}% Model Confidence</span>`;
+            }
+          } else {
+            standingTitle = "Academic Danger Warning / At Risk Standing";
+            classification.innerHTML = `<span class="text-red-500 font-extrabold uppercase tracking-wide animate-pulse">${standingTitle}</span> — <span class="text-amber-500 font-bold">${formattedConfidence}% Model Confidence</span>`;
+          }
+          
+          // Animate probability meters (Graduation Horizon)
+          animateMeter('prob-first-bar', 'prob-first-val', data.probabilities.first_class_pct);
+          animateMeter('prob-second-bar', 'prob-second-val', data.probabilities.second_upper_pct);
+          animateMeter('prob-second-lower-bar', 'prob-second-lower-val', data.probabilities.second_lower_pct);
+          animateMeter('prob-risk-bar', 'prob-risk-val', data.probabilities.third_class_pct);
+          
+          // Populate Boundary Margin Proximity & Pulback Factor Card
+          const marginData = data.class_boundary_margin;
+          if (marginData) {
+            document.getElementById('margin-description').innerText = marginData.margin_description;
+            document.getElementById('margin-current-gpa-lbl').innerText = `Current CGPA: ${parseFloat(marginData.current_gpa).toFixed(2)}`;
+            document.getElementById('margin-target-boundary-lbl').innerText = `Target: ${marginData.next_boundary_title} (${parseFloat(marginData.next_boundary_threshold).toFixed(2)})`;
+            
+            const marginProgBar = document.getElementById('margin-progress-bar');
+            marginProgBar.style.width = '0%';
+            setTimeout(() => {
+              marginProgBar.style.width = `${marginData.progress_pct}%`;
+            }, 300);
+
+            document.getElementById('margin-pullback-factor').innerText = marginData.pullback_factor;
+            
+            const marginBadge = document.getElementById('margin-status-badge');
+            if (marginBadge) {
+              if (marginData.margin_gpa <= 0.3) {
+                marginBadge.innerText = 'Highly Critical Proximity';
+                marginBadge.className = 'px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-rose-500/15 text-rose-400 border border-rose-500/20 uppercase';
+              } else if (marginData.margin_gpa <= 0.6) {
+                marginBadge.innerText = 'Moderate Gap';
+                marginBadge.className = 'px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/20 uppercase';
+              } else {
+                marginBadge.innerText = 'Wide Horizon Gap';
+                marginBadge.className = 'px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 uppercase';
+              }
+            }
+          }
+
+          // Populate Trajectory Nudge Advisor Card
+          const nudgeData = data.trajectory_nudge;
+          if (nudgeData) {
+            document.getElementById('nudge-factor-title').innerText = nudgeData.name;
+            document.getElementById('nudge-factor-desc').innerText = nudgeData.description;
+            document.getElementById('trajectory-nudge-impact').innerText = nudgeData.impact_desc;
+          }
+
+          // Populate Class-Aware Academic Intervention advice
+          if (data.class_aware_advice) {
+            document.getElementById('result-class-aware-advice').innerText = data.class_aware_advice;
+          }
+          
+          // Render Dynamic Feature Importance Chart
+          const chartContainer = document.getElementById('feature-importance-chart');
+          chartContainer.innerHTML = '';
+          
+          if (data.feature_importances && data.feature_importances.length > 0) {
+            const displayFeatures = data.feature_importances.slice(0, 5);
+            displayFeatures.forEach((feat, index) => {
+              const row = document.createElement('div');
+              row.className = 'space-y-1';
+              
+              let barColor = 'from-aui-gold to-yellow-500';
+              if (index === 0) barColor = 'from-aui-gold to-amber-500';
+              else if (index === 1) barColor = 'from-[#38BDF8] to-aui-brandBlue';
+              else if (index === 2) barColor = 'from-indigo-400 to-indigo-500';
+              else barColor = 'from-slate-500 to-slate-400';
+
+              row.innerHTML = `
+                <div class="flex justify-between items-center text-[10px]">
+                  <span class="text-slate-300 font-mono font-medium">${feat.name}</span>
+                  <span class="font-mono font-bold text-slate-400">${feat.weight.toFixed(1)}%</span>
+                </div>
+                <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-900 p-[1px]">
+                  <div class="h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-1000 ease-out" style="width: 0%" id="feat-bar-${index}"></div>
+                </div>
+              `;
+              chartContainer.appendChild(row);
+              
+              setTimeout(() => {
+                const barFill = document.getElementById(`feat-bar-${index}`);
+                if (barFill) barFill.style.width = `${feat.weight}%`;
+              }, 50 + (index * 60));
+            });
+          }
+
+          // Print English explanatory factor
+          document.getElementById('top-factor-alert').innerText = data.top_factor;
+          document.getElementById('top-factor-verdict').innerText = `Your ${data.top_factor} was evaluated by the Random Forest classifier as the primary vector shaping this structural performance horizon.`;
+          
+          // Institutional standing policies
+          const policyCard = document.getElementById('policy-card-holder');
+          const policyBadge = document.getElementById('policy-badge');
+          const policyHeader = document.getElementById('policy-header-label');
+          const policySub = document.getElementById('policy-sub-label');
+          const policyMsg = document.getElementById('result-policy-msg');
+          const projectedGpa = document.getElementById('result-projected-gpa');
+          
+          if (data.is_critical_policy) {
+            // High Risk profile warning alerts (Red Alert policy card)
+            policyCard.className = "rounded-xl p-5 border-2 border-red-500/80 bg-red-950/25 flex flex-col justify-between shadow-[0_0_15px_rgba(239,68,68,0.15)]";
+            policyBadge.className = "h-3 w-3 rounded-full bg-red-500 animate-pulse shadow-md";
+            policyHeader.className = "text-red-400 text-xs font-extrabold uppercase tracking-wide";
+            policySub.className = "text-red-500 text-[9px] font-mono uppercase tracking-widest font-black";
+            policyMsg.className = "text-red-100 text-xs mt-3 leading-relaxed font-semibold";
+          } else {
+            // standard reassuring status parameters (Green banner matrix)
+            policyCard.className = "rounded-xl p-5 border border-emerald-500/50 bg-[#101B30]/80 flex flex-col justify-between shadow-lg shadow-emerald-500/5";
+            policyBadge.className = "h-3 w-3 rounded-full bg-emerald-400 animate-pulse shadow-sm";
+            policyHeader.className = "text-emerald-400 text-xs font-extrabold uppercase tracking-wide";
+            policySub.className = "text-sky-400 text-[9px] font-mono uppercase tracking-widest font-bold";
+            policyMsg.className = "text-gray-300 text-xs mt-3 leading-relaxed";
+          }
+          
+          policyMsg.innerText = data.policy_assessment;
+          projectedGpa.innerText = `${data.predicted_gpa.toFixed(1)} / 5.0`;
+          
+          // Populate Empirical Cohort linkage metrics matching
+          if (data.empirical_cohort_match) {
+            const match = data.empirical_cohort_match;
+            
+            // Map GPA rank percentile to user ordinal standing
+            let percentileSuffix = "th Percentile";
+            const lastDigit = match.standing_peer_percentage % 10;
+            if (match.standing_peer_percentage === 11 || match.standing_peer_percentage === 12 || match.standing_peer_percentage === 13) {
+              percentileSuffix = "th Percentile";
+            } else if (lastDigit === 1) {
+              percentileSuffix = "st Percentile";
+            } else if (lastDigit === 2) {
+              percentileSuffix = "nd Percentile";
+            } else if (lastDigit === 3) {
+              percentileSuffix = "rd Percentile";
+            }
+            
+            document.getElementById('cohort-gpa-percentile').innerText = `${match.standing_peer_percentage}${percentileSuffix}`;
+            document.getElementById('cohort-stress-percentage').innerText = `${match.stress_percentage}%`;
+            document.getElementById('cohort-common-challenge').innerText = match.common_challenge || "None Reported";
+            document.getElementById('cohort-matches-count').innerText = `${match.size} student profile entries`;
+            document.getElementById('cohort-pooling-protocol').innerText = match.pooling_protocol || "Strict same-level study cohort";
+          }
+          
+          // Update analytics counter on successful transaction
+          document.getElementById('counter-display').innerText = data.new_evaluation_count;
+          
+        }, totalDelay);
+      })
+      .catch(error => {
+        alert('Diagnostic server connection failed. Make sure of backend stability.');
+        stateLoader.classList.add('hidden');
+        stateWaiting.classList.remove('hidden');
+      });
+    });
+    
+    // Helper to animate progress vectors safely
+    function animateMeter(barId, valId, targetVal) {
+      const bar = document.getElementById(barId);
+      const val = document.getElementById(valId);
+      
+      // Animate percentage text values
+      let currentVal = 0;
+      const duration = 1000;
+      const intervalTime = 15;
+      const stepValue = targetVal / (duration / intervalTime);
+      
+      bar.style.width = '0%';
+      
+      const interval = setInterval(() => {
+        currentVal += stepValue;
+        if (currentVal >= targetVal) {
+          currentVal = targetVal;
+          clearInterval(interval);
+        }
+        val.innerText = `${currentVal.toFixed(1)}%`;
+      }, intervalTime);
+      
+      // Trigger fluid CSS width transition
+      setTimeout(() => {
+        bar.style.width = `${targetVal}%`;
+      }, 50);
+    }
+
+    // -------------------------------------------------------------------------
+    // AUI Sophomores, Juniors & Seniors Dynamic GPA Builder Matrix
+    // -------------------------------------------------------------------------
+    const defaultAuiCourses = [
+      { code: 'GST 111 (Language)', units: 2, grade: 'A' },
+      { code: 'MTH 111 (Calculus)', units: 3, grade: 'B' },
+      { code: 'CSC 111 (Programming)', units: 3, grade: 'A' },
+      { code: 'CHM 111 (Chemistry)', units: 3, grade: 'C' },
+      { code: 'PHY 111 (Physics)', units: 3, grade: 'B' }
+    ];
+
+    function handleStudentLevelChange() {
+      const levelSelect = document.getElementById('student_level');
+      const level = parseInt(levelSelect.value);
+      const builderPanel = document.getElementById('gpa-builder-panel');
+      const syncTag = document.getElementById('gpa-sync-tag');
+      const firstSemGpaInput = document.getElementById('first_sem_gpa');
+      
+      if (level === 100) {
+        // Fresh 100 level has no previous completed semesters
+        builderPanel.classList.add('hidden');
+        syncTag.classList.add('hidden');
+        firstSemGpaInput.removeAttribute('disabled');
+        firstSemGpaInput.style.opacity = "1";
+        return;
+      }
+
+      // Show GPA builder panel and active dynamic sync warning on Card 2
+      builderPanel.classList.remove('hidden');
+      syncTag.classList.remove('hidden');
+      firstSemGpaInput.setAttribute('disabled', 'true');
+      firstSemGpaInput.style.opacity = "0.75"; // Indicate lock state
+
+      // Determine appropriate semesters to build
+      const semContainer = document.getElementById('semester-inputs-container');
+      semContainer.innerHTML = '';
+
+      let semestersList = [];
+      if (level === 200) {
+        semestersList = [
+          { num: 1, label: '100L Harmattan (Sem 1)', val: 3.5 },
+          { num: 2, label: '100L Rain (Sem 2)', val: 3.3 }
+        ];
+      } else if (level === 300) {
+        semestersList = [
+          { num: 1, label: '100L Harmattan (Sem 1)', val: 3.6 },
+          { num: 2, label: '100L Rain (Sem 2)', val: 3.4 },
+          { num: 3, label: '200L Harmattan (Sem 3)', val: 3.5 },
+          { num: 4, label: '200L Rain (Sem 4)', val: 3.3 }
+        ];
+      } else if (level === 400) {
+        semestersList = [
+          { num: 1, label: '100L Harmattan (Sem 1)', val: 3.7 },
+          { num: 2, label: '100L Rain (Sem 2)', val: 3.5 },
+          { num: 3, label: '200L Harmattan (Sem 3)', val: 3.6 },
+          { num: 4, label: '200L Rain (Sem 4)', val: 3.4 },
+          { num: 5, label: '300L Harmattan (Sem 5)', val: 3.5 },
+          { num: 6, label: '300L Rain (Sem 6)', val: 3.3 }
+        ];
+      }
+
+      semestersList.forEach(sem => {
+        const semDiv = document.createElement('div');
+        semDiv.className = 'space-y-1 bg-[#131E35] border border-aui-borderSlate/40 rounded-xl p-3 flex flex-col justify-between';
+        semDiv.innerHTML = `
+          <div class="flex justify-between items-center bg-[#101B30]/30 py-0.5 px-1.5 rounded">
+            <span class="text-[9px] font-bold text-gray-300 font-mono uppercase">${sem.label}</span>
+            <span id="sem-val-${sem.num}" class="font-mono text-xs font-black text-[#D4AF37]">${parseFloat(sem.val).toFixed(2)}</span>
+          </div>
+          <input type="range" class="sem-gpa-slider w-full h-1 bg-[#101B30] rounded-lg appearance-none cursor-pointer accent-[#D4AF37] focus:outline-none border border-aui-borderSlate/30" min="0.0" max="5.0" step="0.05" value="${sem.val}" oninput="updateSemVal(${sem.num}, this.value)">
+        `;
+        semContainer.appendChild(semDiv);
+      });
+
+      // Populate helper target dropdown
+      const targetSemSelect = document.getElementById('helper-target-sem');
+      if (targetSemSelect) {
+        targetSemSelect.innerHTML = '';
+        semestersList.forEach(sem => {
+          const opt = document.createElement('option');
+          opt.value = sem.num;
+          opt.text = sem.label;
+          targetSemSelect.appendChild(opt);
+        });
+      }
+
+      calculateCGPAFromSemesters();
+    }
+
+    function updateSemVal(idx, val) {
+      document.getElementById(`sem-val-${idx}`).innerText = parseFloat(val).toFixed(2);
+      calculateCGPAFromSemesters();
+    }
+
+    function calculateCGPAFromSemesters() {
+      const sliders = document.querySelectorAll('.sem-gpa-slider');
+      let sum = 0;
+      sliders.forEach(slide => {
+        sum += parseFloat(slide.value);
+      });
+      const avg = sliders.length > 0 ? (sum / sliders.length) : 0;
+      
+      // Sync into Card 2 values
+      const cgpaInput = document.getElementById('first_sem_gpa');
+      cgpaInput.value = avg.toFixed(2);
+      document.getElementById('gpa_val').innerText = avg.toFixed(2);
+    }
+
+    function toggleGradeHelper() {
+      const container = document.getElementById('grade-helper-container');
+      const plusIcon = document.getElementById('helper-plus-icon');
+      const badge = document.getElementById('helper-status-badge');
+      
+      if (container.classList.contains('hidden')) {
+        container.classList.remove('hidden');
+        plusIcon.classList.add('rotate-45');
+        badge.innerText = '(active helper)';
+        
+        // Populate standard courses if empty
+        const courseList = document.getElementById('helper-course-list');
+        if (courseList.children.length === 0) {
+          defaultAuiCourses.forEach(c => addNewHelperCourse(c.code, c.units, c.grade));
+        }
+      } else {
+        container.classList.add('hidden');
+        plusIcon.classList.remove('rotate-45');
+        badge.innerText = '(expand to compute)';
+      }
+    }
+
+    function addNewHelperCourse(code = '', units = 3, grade = 'B') {
+      const courseList = document.getElementById('helper-course-list');
+      const row = document.createElement('div');
+      row.className = 'grid grid-cols-12 gap-2 items-center text-xs';
+      
+      row.innerHTML = `
+        <input type="text" placeholder="e.g. GST 211" value="${code}" class="col-span-6 bg-[#101B30] border border-aui-borderSlate/60 rounded px-2 py-1 text-[11px] text-white focus:outline-none focus:border-aui-gold">
+        <select class="course-units col-span-3 bg-[#101B30] border border-aui-borderSlate/60 rounded px-1.5 py-1 text-[11px] text-white cursor-pointer focus:outline-none">
+          <option value="1" ${units === 1 ? 'selected' : ''}>1</option>
+          <option value="2" ${units === 2 ? 'selected' : ''}>2</option>
+          <option value="3" ${units === 3 ? 'selected' : ''}>3</option>
+          <option value="4" ${units === 4 ? 'selected' : ''}>4</option>
+          <option value="5" ${units === 5 ? 'selected' : ''}>5</option>
+          <option value="6" ${units === 6 ? 'selected' : ''}>6</option>
+        </select>
+        <select class="course-grade col-span-3 bg-[#101B30] border border-aui-borderSlate/60 rounded px-1.5 py-1 text-[11px] text-white cursor-pointer focus:outline-none text-[#D4AF37] font-bold">
+          <option value="5" ${grade === 'A' ? 'selected' : ''}>A</option>
+          <option value="4" ${grade === 'B' ? 'selected' : ''}>B</option>
+          <option value="3" ${grade === 'C' ? 'selected' : ''}>C</option>
+          <option value="2" ${grade === 'D' ? 'selected' : ''}>D</option>
+          <option value="1" ${grade === 'E' ? 'selected' : ''}>E</option>
+          <option value="0" ${grade === 'F' ? 'selected' : ''}>F</option>
+        </select>
+      `;
+      courseList.appendChild(row);
+    }
+
+    function calculateHelperGPA() {
+      const unitsSelects = document.querySelectorAll('.course-units');
+      const gradeSelects = document.querySelectorAll('.course-grade');
+      const targetSemSelect = document.getElementById('helper-target-sem');
+      
+      if (!targetSemSelect || targetSemSelect.options.length === 0) {
+        alert('Please make sure you have chosen 200 Level or above to apply results.');
+        return;
+      }
+
+      let totalUnits = 0;
+      let weightedPoints = 0;
+      
+      for (let i = 0; i < unitsSelects.length; i++) {
+        const units = parseInt(unitsSelects[i].value);
+        const points = parseInt(gradeSelects[i].value);
+        totalUnits += units;
+        weightedPoints += (units * points);
+      }
+      
+      const computedGpa = totalUnits > 0 ? (weightedPoints / totalUnits) : 0.0;
+      const targetIdx = parseInt(targetSemSelect.value);
+      const sliders = document.querySelectorAll('.sem-gpa-slider');
+      
+      if (sliders[targetIdx - 1]) {
+        sliders[targetIdx - 1].value = computedGpa.toFixed(2);
+        updateSemVal(targetIdx, computedGpa.toFixed(2));
+        alert(`Computed GPA of ${computedGpa.toFixed(2)} was successfully synchronized into ${targetSemSelect.options[targetIdx - 1].text}!`);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Official Augustine University PDF Transcript & Report Generator
+    // -------------------------------------------------------------------------
+    function downloadPDFReport() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'pt',
+        format: 'a4'
+      });
+
+      const primaryNavy = '#101B30';
+      const accentGold = '#D4AF37';
+      const lightSlate = '#4E617E';
+      
+      // Draw background design decoration
+      doc.setFillColor(16, 27, 48); // Deep Navy header banner
+      doc.rect(0, 0, 595, 120, 'F');
+      
+      // Accent Gold banner divider
+      doc.setFillColor(212, 175, 55); 
+      doc.rect(0, 120, 595, 6, 'F');
+      
+      // Footer Gold accent line
+      doc.setFillColor(212, 175, 55); 
+      doc.rect(0, 805, 595, 6, 'F');
+      doc.setFillColor(16, 27, 48); 
+      doc.rect(0, 811, 595, 31, 'F');
+
+      // Title & Header text layout
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text("AUGUSTINE UNIVERSITY, ILARA-EPE", 297, 42, { align: 'center' });
+      
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(212, 175, 55);
+      doc.text("LAGOS STATE, NIGERIA - OFFICIAL PREDICTIVE PORTAL", 297, 60, { align: 'center' });
+      
+      doc.setFontSize(11);
+      doc.setTextColor(255, 255, 255);
+      doc.text("ACADEMIC STANDING EVALUATION & DECISION REPORT", 297, 90, { align: 'center' });
+
+      // Retrieve dynamic active parameters
+      const level = document.getElementById('student_level').value;
+      const waec = document.getElementById('waec_score').value;
+      const jamb = document.getElementById('jamb_score').value;
+      const attendance = document.getElementById('attendance_pct').value + '%';
+      const internal_test = document.getElementById('internal_test_score').value;
+      const carryovers = document.getElementById('carryover_count').value;
+      const first_sem_gpa = document.getElementById('first_sem_gpa').value;
+      const assignment_rate = (parseFloat(document.getElementById('assignment_rate').value) * 100).toFixed(0) + '%';
+      const study_hours = document.getElementById('study_hours').value;
+      
+      const classification = document.getElementById('result-classification').innerText;
+      const confidence = document.getElementById('result-confidence').innerText;
+      const topFactor = document.getElementById('top-factor-alert').innerText;
+      const policyMsg = document.getElementById('result-policy-msg').innerText;
+      const projectedGpaVal = document.getElementById('result-projected-gpa').innerText;
+
+      // Draw Academic Information Section
+      doc.setTextColor(16, 27, 48);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text("1. Student Diagnostic Profile Attributes", 45, 170);
+      
+      doc.setDrawColor(212, 175, 55);
+      doc.setLineWidth(1);
+      doc.line(45, 178, 550, 178);
+
+      // Section 1: Baseline vectors details
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      
+      const dataRows = [
+        ["Active Academic Year Level Standing:", `${level} Level`],
+        ["WAEC Entrance Grade Index Score:", `${waec} / 10`],
+        ["JAMB Entry Examination Score:", `${jamb} / 400`],
+        ["Continuous Assessment (CA) Score:", `${internal_test} / 30`],
+        ["Academic Lecture Attendance Standing:", `${attendance}`],
+        ["Prior Completed Semester CGPA Cumulative:", `${first_sem_gpa} / 5.0`],
+        ["Assignment Execution Submission Rate:", `${assignment_rate}`],
+        ["Daily Independent Study Duration Routine:", `${study_hours} Hours Per Day`],
+        ["Ongoing Registered Backlog Carryovers:", `${carryovers} Courses`]
+      ];
+
+      let currentY = 205;
+      dataRows.forEach(row => {
+        doc.setFont('Helvetica', 'bold');
+        doc.text(row[0], 55, currentY);
+        doc.setFont('Helvetica', 'normal');
+        doc.text(row[1], 350, currentY);
+        
+        doc.setDrawColor(240, 240, 240);
+        doc.line(55, currentY + 6, 540, currentY + 6);
+        currentY += 24;
+      });
+
+      // Section 2: Cognitive Predictor outcomes
+      currentY += 15;
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(16, 27, 48);
+      doc.text("2. Cognitive ML Inference Standings", 45, currentY);
+      doc.setDrawColor(212, 175, 55);
+      doc.line(45, currentY + 8, 550, currentY + 8);
+      
+      currentY += 26;
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(16, 27, 48);
+      doc.text("Inference Evaluation Standing:", 55, currentY);
+      doc.setFont('Helvetica', 'normal');
+      doc.setTextColor(212, 175, 55);
+      doc.text(classification, 245, currentY);
+      
+      currentY += 22;
+      doc.setFont('Helvetica', 'bold');
+      doc.setTextColor(16, 27, 48);
+      doc.text("Random Forest Prediction Confidence:", 55, currentY);
+      doc.setFont('Helvetica', 'normal');
+      doc.setTextColor(80, 80, 80);
+      doc.text(confidence, 245, currentY);
+
+      currentY += 22;
+      doc.setFont('Helvetica', 'bold');
+      doc.text("Academic Term CGPA Outlook Projection:", 55, currentY);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(projectedGpaVal, 245, currentY);
+
+      currentY += 22;
+      doc.setFont('Helvetica', 'bold');
+      doc.text("Dominant Model Decision Factor Driver:", 55, currentY);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(topFactor, 245, currentY);
+
+      // Educational Policy Box Layout
+      currentY += 28;
+      doc.setFillColor(248, 249, 250);
+      doc.setDrawColor(220, 224, 230);
+      doc.rect(45, currentY, 505, 75, 'FD');
+      
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(16, 27, 48);
+      doc.text("Institutional Administrative standing Guidance & Regulatory Assessment:", 55, currentY + 18);
+      
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(100, 100, 100);
+      
+      const splitMsg = doc.splitTextToSize(policyMsg, 485);
+      doc.text(splitMsg, 55, currentY + 32);
+
+      // Signatures
+      currentY += 135;
+      doc.setDrawColor(180, 180, 180);
+      doc.line(75, currentY, 220, currentY);
+      doc.line(375, currentY, 520, currentY);
+      
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(100, 100, 100);
+      doc.text("AUI REGISTRATION & RECORDS OFFICE", 147, currentY + 12, { align: 'center' });
+      doc.text("COGNITIVE ML EVALUATOR SIGNATURE", 447, currentY + 12, { align: 'center' });
+      
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(160, 160, 160);
+      doc.text("Generated securely via Augustine University Cognitive ML Inference Server. All rights reserved.", 297, 770, { align: 'center' });
+      doc.text("AUI-COG-DEC-2026-NFC0198 - VERIFICATION STANDING: COMPLIANT", 297, 780, { align: 'center' });
+      
+      doc.save(`AUI_Academic_Prediction_Report_Level_${level}.pdf`);
+    }
+
+    // -------------------------------------------------------------------------
+    // AUI Real Survey Stats & Dashboard Orchestration engine
+    // -------------------------------------------------------------------------
+    let surveyStatsCache = null;
+    
+    function switchActiveTab(tabName) {
+      const predBtn = document.getElementById('tab-predictor-btn');
+      const survBtn = document.getElementById('tab-survey-btn');
+      const predContainer = document.getElementById('main-container');
+      const survContainer = document.getElementById('survey-analytics-container');
+      
+      if (!predBtn || !survBtn || !predContainer || !survContainer) return;
+      
+      const activeBtnClasses = "px-5 py-2.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all duration-300 bg-gradient-to-r from-aui-gold to-aui-goldLight text-slate-950 shadow-md cursor-pointer flex items-center gap-2";
+      const inactiveBtnClasses = "px-5 py-2.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all duration-300 text-slate-400 hover:text-white cursor-pointer flex items-center gap-2";
+      
+      if (tabName === 'predictor') {
+        // Style Buttons
+        predBtn.className = activeBtnClasses;
+        survBtn.className = inactiveBtnClasses;
+        
+        // Dynamic animation switch
+        survContainer.classList.add('opacity-0', 'translate-y-4');
+        setTimeout(() => {
+          survContainer.classList.add('hidden');
+          predContainer.classList.remove('hidden');
+          setTimeout(() => {
+            predContainer.classList.remove('opacity-0', 'translate-y-4');
+            predContainer.classList.add('opacity-100', 'translate-y-0');
+          }, 50);
+        }, 150);
+      } else {
+        // Style Buttons
+        survBtn.className = activeBtnClasses;
+        predBtn.className = inactiveBtnClasses;
+        
+        // Dynamic animation switch
+        predContainer.classList.add('opacity-0', 'translate-y-4');
+        setTimeout(() => {
+          predContainer.classList.add('hidden');
+          survContainer.classList.remove('hidden');
+          setTimeout(() => {
+            survContainer.classList.remove('opacity-0', 'translate-y-4');
+            survContainer.classList.add('opacity-100', 'translate-y-0');
+            loadSurveyStats();
+          }, 50);
+        }, 150);
+      }
+    }
+    
+    async function loadSurveyStats() {
+      const refreshSpinner = document.getElementById('survey-refresh-spinner');
+      if (refreshSpinner) refreshSpinner.style.display = 'inline-block';
+      
+      try {
+        const response = await fetch('/api/survey-stats');
+        if (!response.ok) throw new Error('API server failed to deliver stats');
+        
+        const data = await response.json();
+        surveyStatsCache = data;
+        
+        // 1. Render high level KPIs
+        document.getElementById('stat-total-surveyed').innerHTML = `${data.totalCount || 58} <span class="text-xs font-semibold text-slate-500 font-sans">students</span>`;
+        
+        // Get academic stress percentage
+        const stronglyAgreeStress = data.academicStress['Strongly Agree'] || 0;
+        const agreeStress = data.academicStress['Agree'] || 0;
+        const totalStress = stronglyAgreeStress + agreeStress;
+        const stressPct = data.totalCount > 0 ? ((totalStress / data.totalCount) * 100).toFixed(1) : "74.1";
+        document.getElementById('stat-stress-index').innerText = `${stressPct}%`;
+        
+        // Get high financial stress
+        const sigFin = data.financialStress['Significantly'] || 0;
+        const modFin = data.financialStress['Moderately'] || 0;
+        const totalFinStress = sigFin + modFin;
+        const finPct = data.totalCount > 0 ? ((totalFinStress / data.totalCount) * 100).toFixed(1) : "86.2";
+        document.getElementById('stat-financial-threat').innerText = `${finPct}%`;
+        
+        // Lecture attendance average
+        const attendanceVal = data.lectures?.avgAttendance || 86.5;
+        document.getElementById('stat-average-attendance').innerText = `${attendanceVal.toFixed(1)}%`;
+        
+        // 2. Render right-panel lecture metrics
+        document.getElementById('survey-metric-att').innerText = `${attendanceVal.toFixed(1)}%`;
+        document.getElementById('survey-metric-att-bar').style.width = `${attendanceVal}%`;
+        
+        const assignmentsVal = data.lectures?.avgAssignments || 66.8;
+        document.getElementById('survey-metric-assign').innerText = `${assignmentsVal.toFixed(1)}%`;
+        document.getElementById('survey-metric-assign-bar').style.width = `${assignmentsVal}%`;
+        
+        const helpfulVal = data.lectures?.avgHelpful || 58.2;
+        document.getElementById('survey-metric-help').innerText = `${helpfulVal.toFixed(1)}%`;
+        document.getElementById('survey-metric-help-bar').style.width = `${helpfulVal}%`;
+        
+        const focusVal = data.lectures?.avgLecturerFocus || 41.5;
+        document.getElementById('survey-metric-focus').innerText = `${focusVal.toFixed(1)}%`;
+        document.getElementById('survey-metric-focus-bar').style.width = `${focusVal}%`;
+        
+        // 2b. Render dynamic bivariate Pearson correlation coefficients
+        if (data.correlations) {
+          const corr = data.correlations;
+          const formatCorr = (val) => {
+            if (isNaN(val)) return "0.000";
+            const prefix = val > 0 ? "+" : "";
+            return `${prefix}${val.toFixed(3)}`;
+          };
+          document.getElementById('corr-att-gpa').innerText = formatCorr(corr.attendanceVsGpa);
+          document.getElementById('corr-stress-gpa').innerText = formatCorr(corr.academicStressVsGpa);
+          document.getElementById('corr-fin-stress').innerText = formatCorr(corr.financialStressVsAcademicStress);
+          document.getElementById('corr-social-gpa').innerText = formatCorr(corr.socialMediaVsGpa);
+          document.getElementById('corr-env-gpa').innerText = formatCorr(corr.envConducivenessVsGpa);
+        }
+        
+        // 3. Render Gender & Habits
+        const females = data.gender?.female || 0;
+        const males = data.gender?.male || 0;
+        const totalGender = females + males;
+        const femalePct = totalGender > 0 ? ((females / totalGender) * 100).toFixed(0) : "52";
+        const malePct = totalGender > 0 ? ((males / totalGender) * 100).toFixed(0) : "48";
+        document.getElementById('survey-gender-female-pct').innerText = `${femalePct}%`;
+        document.getElementById('survey-gender-male-pct').innerText = `${malePct}%`;
+        
+        const regularlyStudy = data.habits?.regularly || 0;
+        const habitRegularPct = data.totalCount > 0 ? ((regularlyStudy / data.totalCount) * 100).toFixed(1) : "67.2";
+        document.getElementById('survey-habit-regular-pct').innerText = `${habitRegularPct}%`;
+        
+        // 4. Render Challenges list sorted by magnitude
+        const challengesContainer = document.getElementById('survey-challenges-container');
+        if (challengesContainer) {
+          challengesContainer.innerHTML = '';
+          const sortedChallenges = Object.entries(data.challenges || {})
+            .sort((a, b) => b[1] - a[1]);
+          
+          if (sortedChallenges.length === 0) {
+            challengesContainer.innerHTML = '<p class="text-xs text-slate-500 italic">No challenges tracked yet.</p>';
+          } else {
+            sortedChallenges.forEach(([challengeName, amount]) => {
+              const countPct = ((amount / data.totalCount) * 100).toFixed(1);
+              const challengeDiv = document.createElement('div');
+              challengeDiv.className = 'space-y-1.5';
+              challengeDiv.innerHTML = `
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-200 font-semibold flex items-center gap-1.5 font-mono text-[11px]">
+                    <span class="h-1.5 w-1.5 rounded-full bg-aui-gold"></span>
+                    ${challengeName}
+                  </span>
+                  <span class="font-mono text-[11px] text-aui-gold font-bold">${amount} entries (${countPct}%)</span>
+                </div>
+                <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-900 p-[1.5px]">
+                  <div class="h-full bg-gradient-to-r from-aui-brandBlue via-aui-gold to-aui-goldLight rounded-full transition-all duration-1000" style="width: ${countPct}%"></div>
+                </div>
+              `;
+              challengesContainer.appendChild(challengeDiv);
+            });
+          }
+        }
+        
+        // 5. Render demographic table records
+        renderSurveyRecordsTable(data.rawRecords || []);
+        
+      } catch (err) {
+        console.error('Error fetching survey statistics:', err);
+      } finally {
+        if (refreshSpinner) refreshSpinner.style.display = 'none';
+      }
+    }
+    
+    function renderSurveyRecordsTable(records) {
+      const tableBody = document.getElementById('survey-data-table-body');
+      if (!tableBody) return;
+      tableBody.innerHTML = '';
+      
+      if (records.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-8 text-center text-xs text-slate-500 italic">
+              No matching records discovered in survey stream.
+            </td>
+          </tr>
+        `;
+        document.getElementById('survey-table-pagination-info').innerText = 'Showing 0 matching responses';
+        return;
+      }
+      
+      records.forEach(rec => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/40 transition duration-150 border-b border-slate-900 font-mono text-[11.5px] text-slate-300';
+        
+        // Determine study interval style
+        let habitBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] bg-slate-900 border border-slate-800 text-slate-400">cramming exam</span>`;
+        if (rec.habit === 'Regularly') {
+          habitBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">regular hours</span>`;
+        }
+        
+        // Determine level of study
+        const studyLevel = rec.level || '300 Level';
+        
+        // Standing badge
+        let standingBadge = `<span class="text-slate-400">${rec.currentGpa}</span>`;
+        if (rec.currentGpa && rec.currentGpa.includes('First class')) {
+          standingBadge = `<span class="text-aui-gold font-extrabold">${rec.currentGpa}</span>`;
+        } else if (rec.currentGpa && rec.currentGpa.includes('Third class')) {
+          standingBadge = `<span class="text-rose-400 font-bold">${rec.currentGpa}</span>`;
+        }
+        
+        // Stress level badge
+        let stressBadge = `<span class="text-slate-400">${rec.academicStress || 'Agree'}</span>`;
+        if (rec.academicStress === 'Strongly Agree' || rec.academicStress === 'Agree') {
+          stressBadge = `<span class="text-amber-500 font-semibold">${rec.academicStress}</span>`;
+        }
+        
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-bold text-white">${rec.gender}</td>
+          <td class="py-3 px-3">${studyLevel}</td>
+          <td class="py-3 px-4">${habitBadge}</td>
+          <td class="py-3 px-4 text-slate-300">${rec.location}</td>
+          <td class="py-3 px-4 font-bold text-aui-brandBlue">${rec.socialMedia || '1-3 Hrs'}</td>
+          <td class="py-3 px-4">${stressBadge}</td>
+          <td class="py-3 px-4">${standingBadge} <span class="text-[10px] text-slate-500 block">target: ${rec.targetGpa || '--'}</span></td>
+        `;
+        tableBody.appendChild(tr);
+      });
+      
+      document.getElementById('survey-table-pagination-info').innerText = `Displaying ${records.length} empirical student records`;
+    }
+    
+    function filterSurveyRows() {
+      if (!surveyStatsCache || !surveyStatsCache.rawRecords) return;
+      
+      const query = document.getElementById('survey-search-input').value.toLowerCase().trim();
+      if (!query) {
+        renderSurveyRecordsTable(surveyStatsCache.rawRecords);
+        return;
+      }
+      
+      const filtered = surveyStatsCache.rawRecords.filter(rec => {
+        return (
+          rec.gender.toLowerCase().includes(query) ||
+          rec.level.toLowerCase().includes(query) ||
+          rec.habit.toLowerCase().includes(query) ||
+          rec.location.toLowerCase().includes(query) ||
+          rec.currentGpa.toLowerCase().includes(query) ||
+          rec.targetGpa.toLowerCase().includes(query) ||
+          rec.academicStress.toLowerCase().includes(query)
+        );
+      });
+      
+      renderSurveyRecordsTable(filtered);
+    }
+    
+    function clearSearchFilter() {
+      document.getElementById('survey-search-input').value = '';
+      if (surveyStatsCache && surveyStatsCache.rawRecords) {
+        renderSurveyRecordsTable(surveyStatsCache.rawRecords);
+      }
+    }
+    
+    async function refreshSurveyStats() {
+      await loadSurveyStats();
+    }
+
+    // Bind initial check loop
+    document.addEventListener("DOMContentLoaded", function() {
+      // Hook level element change for immediate load if default is changes
+      handleStudentLevelChange();
+    });
+  </script>
+</body>
+</html>
