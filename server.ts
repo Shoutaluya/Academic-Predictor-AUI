@@ -158,7 +158,7 @@ app.get('/', (req, res) => {
 
 const predictSchema = z.object({
   student_level: z.coerce.number().min(100).max(600).default(100),
-  waec_score: z.coerce.number().min(1).max(9).default(7),
+  waec_score: z.coerce.number().min(1).max(10).default(7),
   jamb_score: z.coerce.number().min(0).max(400).default(250),
   internal_test_score: z.coerce.number().min(0).max(30).default(22),
   first_sem_gpa: z.coerce.number().min(0.0).max(5.0).default(3.0),
@@ -174,7 +174,7 @@ app.post('/predict', (req, res) => {
     if (!parseResult.success) {
       return res.status(400).json({
         error: 'Invalid input data',
-        details: parseResult.error.errors
+        details: parseResult.error.issues
       });
     }
 

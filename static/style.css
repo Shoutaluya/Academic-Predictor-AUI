@@ -3,7 +3,7 @@
  * Augustine University (AUI) Academic Prediction custom style definitions
  */
 
-@import "tailwindcss";
+/* AUI Application Specific Global Styles */
 
 /* Progressive form card transition properties */
 .fade-transition {

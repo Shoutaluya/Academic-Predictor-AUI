@@ -1677,21 +1677,21 @@
           // Save inputs for sandbox what-if solver
           window.currentPredictionInputs = { ...formData };
           
-          // Update ARIA live region
-          const announcer = document.getElementById('result-announcer');
-          if (announcer) {
-            announcer.innerText = `Prediction: ${data.prediction_class === 1 ? 'High Academic Stand' : 'At Risk'}. Confidence: ${formattedConfidence}%`;
-            // Also move focus to results for accessibility
-            stateResults.focus();
-            stateResults.setAttribute('tabindex', '-1');
-          }
-
           // Populate primary diagnostic outcomes
           const classification = document.getElementById('result-classification');
           const confidence = document.getElementById('result-confidence');
           
           const formattedConfidence = parseFloat(data.confidence).toFixed(1);
           confidence.innerText = `${formattedConfidence}%`;
+
+          // Update ARIA live region
+          const announcer = document.getElementById('result-announcer');
+          if (announcer) {
+            announcer.innerText = `Prediction: ${data.prediction === 1 ? 'High Academic Stand' : 'At Risk'}. Confidence: ${formattedConfidence}%`;
+            // Also move focus to results for accessibility
+            stateResults.focus();
+            stateResults.setAttribute('tabindex', '-1');
+          }
           
           // Set appropriate label depending on model target response and precision formats
           let standingTitle = "";
@@ -2734,22 +2734,6 @@
     document.addEventListener("DOMContentLoaded", function() {
       // Hook level element change for immediate load if default is changes
       handleStudentLevelChange();
-
-      // Keyboard support to advance step on enter
-      document.getElementById('prediction-form').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          if (currentStep < totalSteps) {
-            navigateStep(1);
-          } else {
-            // Submit form
-            const executeBtn = document.getElementById('execute-btn');
-            if (executeBtn && !executeBtn.classList.contains('hidden')) {
-               executeBtn.click();
-            }
-          }
-        }
-      });
     });
   </script>
 </body>
