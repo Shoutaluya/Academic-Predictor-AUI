@@ -6,9 +6,15 @@ import { fileURLToPath } from 'url';
 const app = express();
 const PORT = 3000;
 
-// Resolve ES Module directory globals
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Resolve ES Module directory globals safely for both ESM and CJS environments
+// We use distinct names to avoid block-scoping clash and TDZ with global/wrapper variables
+const resolvedFilename = typeof __filename !== 'undefined' && __filename 
+  ? __filename 
+  : (typeof import.meta !== 'undefined' && import.meta.url ? fileURLToPath(import.meta.url) : '');
+
+const resolvedDirname = typeof __dirname !== 'undefined' && __dirname 
+  ? __dirname 
+  : (resolvedFilename ? path.dirname(resolvedFilename) : process.cwd());
 
 // CSV parser helper to correctly parse commas inside double-quoted strings
 function parseCsvLine(line: string): string[] {
@@ -30,15 +36,64 @@ function parseCsvLine(line: string): string[] {
   return result;
 }
 
+// Filter out irrelevant academic challenges (e.g. "etc" or "but it does not affect me significantly") and standardize
+function getStandardizedChallenge(ch: string): string | null {
+  if (!ch) return null;
+  const clean = ch.replace(/^"|"$/g, '').trim();
+  const lower = clean.toLowerCase();
+  
+  // Relevancy filtering criteria
+  if (
+    lower === '' || 
+    lower === 'none' || 
+    lower === 'nil' || 
+    lower === 'n/a' || 
+    lower === 'no' || 
+    lower === 'etc' ||
+    lower.includes('etc.') ||
+    lower.includes('none etc') ||
+    lower.includes('does not affect me') || 
+    lower.includes('doesn\'t affect me') || 
+    lower.includes('do not affect me') || 
+    lower.includes('don\'t affect me') ||
+    lower.includes('no significant effect') ||
+    lower.includes('not affect me')
+  ) {
+    return null;
+  }
+  
+  // Categorical standardization
+  if (clean.includes('Difficulty') || clean.includes('Difficult course') || lower.includes('difficult')) {
+    return 'Difficult Course Content';
+  } else if (clean.includes('Distractions') || lower.includes('distraction')) {
+    return 'Environmental Distractions';
+  } else if (clean.includes('Too many academic workload') || clean.includes('workload demands') || lower.includes('workload')) {
+    return 'High Workload Demands';
+  } else if (clean.includes('Lack of motivation') || lower.includes('motivation')) {
+    return 'Lack of Motivation';
+  } else if (clean.includes('Poor time management') || lower.includes('time management')) {
+    return 'Poor Time Management';
+  } else if (clean.includes('Health') || clean.includes('personal issues') || lower.includes('health')) {
+    return 'Health & Personal Issues';
+  } else if (clean.includes('academic support') || lower.includes('support')) {
+    return 'Lack of Lecturer Support';
+  } else if (clean.includes('Financial') || lower.includes('financial') || lower.includes('money')) {
+    return 'Financial Bottlenecks';
+  }
+  
+  // Capitalize first letter of each word as standard fallback
+  return clean.replace(/\b\w/g, c => c.toUpperCase());
+}
+
 // Standard body parsers for both application/json (fetch) and x-www-form-urlencoded (forms)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Link the static assets folder
-app.use('/static', express.static(path.join(__dirname, 'static')));
+app.use('/static', express.static(path.join(resolvedDirname, 'static')));
 
 // Define thread-safe analytical counter access
-const COUNTER_PATH = path.join(__dirname, 'counter.json');
+const COUNTER_PATH = path.join(resolvedDirname, 'counter.json');
 
 function getAndIncrementCounter(): number {
   try {
@@ -72,7 +127,7 @@ function getCurrentCounter(): number {
 // Core GET Page Route
 // -------------------------------------------------------------
 app.get('/', (req, res) => {
-  const indexPath = path.join(__dirname, 'templates', 'index.html');
+  const indexPath = path.join(resolvedDirname, 'templates', 'index.html');
   if (fs.existsSync(indexPath)) {
     let htmlContent = fs.readFileSync(indexPath, 'utf8');
     
@@ -460,7 +515,7 @@ app.post('/predict', (req, res) => {
     let cohortGpaPeerPercentage = 68;
     let cohortPoolingProtocol = "Strict same-level study cohort";
 
-    const csvPath = path.join(__dirname, 'survey_responses.csv');
+    const csvPath = path.join(resolvedDirname, 'survey_responses.csv');
     if (fs.existsSync(csvPath)) {
       const content = fs.readFileSync(csvPath, 'utf8');
       const lines = content.split('\n').filter(line => line.trim() !== '');
@@ -595,11 +650,11 @@ app.post('/predict', (req, res) => {
             
             // Common challenge accumulation
             const rChallengesRaw = cols[15] || '';
-            const chList = rChallengesRaw.replace(/^"|"$/g, '').split(',');
+            const chList = rChallengesRaw.split(',');
             for (const ch of chList) {
-              const cleaned = ch.trim();
-              if (cleaned) {
-                challengeCounts[cleaned] = (challengeCounts[cleaned] || 0) + 1;
+              const std = getStandardizedChallenge(ch);
+              if (std) {
+                challengeCounts[std] = (challengeCounts[std] || 0) + 1;
               }
             }
           }
@@ -615,7 +670,7 @@ app.post('/predict', (req, res) => {
         
         let topCount = 0;
         for (const [chKey, count] of Object.entries(challengeCounts)) {
-          if (count > topCount && !chKey.toLowerCase().includes('other')) {
+          if (count > topCount) {
             topCount = count;
             cohortCommonChallenge = chKey;
           }
@@ -679,7 +734,7 @@ app.post('/predict', (req, res) => {
 // -------------------------------------------------------------
 app.get('/api/survey-stats', (req, res) => {
   try {
-    const csvPath = path.join(__dirname, 'survey_responses.csv');
+    const csvPath = path.join(resolvedDirname, 'survey_responses.csv');
     if (!fs.existsSync(csvPath)) {
       return res.status(404).json({ error: 'Survey data not initialized yet.' });
     }
@@ -937,27 +992,9 @@ app.get('/api/survey-stats', (req, res) => {
       
       const chList = cleanChallenges.split(',');
       for (const rawCh of chList) {
-        const ch = rawCh.trim();
-        if (ch) {
-          let standardized = ch;
-          if (ch.includes('Difficulty') || ch.includes('Difficult course')) {
-            standardized = 'Difficult Course Content';
-          } else if (ch.includes('Distractions')) {
-            standardized = 'Environmental Distractions';
-          } else if (ch.includes('Too many academic workload') || ch.includes('workload demands')) {
-            standardized = 'High Workload Demands';
-          } else if (ch.includes('Lack of motivation')) {
-            standardized = 'Lack of Motivation';
-          } else if (ch.includes('Poor time management')) {
-            standardized = 'Poor Time Management';
-          } else if (ch.includes('Health') || ch.includes('personal issues')) {
-            standardized = 'Health & Personal Issues';
-          } else if (ch.includes('academic support')) {
-            standardized = 'Lack of Lecturer Support';
-          } else if (ch.includes('Financial')) {
-            standardized = 'Financial Bottlenecks';
-          }
-          challenges[standardized] = (challenges[standardized] || 0) + 1;
+        const std = getStandardizedChallenge(rawCh);
+        if (std) {
+          challenges[std] = (challenges[std] || 0) + 1;
         }
       }
       

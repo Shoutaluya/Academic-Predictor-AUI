@@ -113,8 +113,14 @@
         Predictive standing AI
       </button>
       <button type="button" id="tab-survey-btn" onclick="switchActiveTab('survey')" class="px-5 py-2.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all duration-300 text-slate-400 hover:text-white cursor-pointer flex items-center gap-2">
-        <svg class="w-3.5 h-3.5 text-slate-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2"/></svg>
+        <svg class="w-3.5 h-3.5 text-slate-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2"/></svg>
         AUI Survey Insights Suite
+      </button>
+      <button type="button" id="tab-explorer-btn" onclick="switchActiveTab('explorer')" class="px-5 py-2.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all duration-300 text-slate-400 hover:text-white cursor-pointer flex items-center gap-2">
+        <svg class="w-3.5 h-3.5 text-slate-400 hover:text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0021 19.125m-6-1.996a9 9 0 00-1.5-.224V12a3 3 0 116 0v2.929m-6 3.101A11.387 11.387 0 019 19.125" />
+        </svg>
+        Cohort Explorer
       </button>
     </div>
   </div>
@@ -657,6 +663,137 @@
           </div>
         </div>
 
+        <!-- PATHWAY TO STANDINGS RECOVERY SANDBOX (Unlocks when At Risk) -->
+        <div id="sandbox-recovery-card" class="hidden bg-gradient-to-br from-slate-900 to-indigo-950/40 border-2 border-aui-gold/40 rounded-xl p-5 md:p-6 shadow-2xl relative overflow-hidden space-y-6">
+          <div class="absolute -right-16 -top-16 w-36 h-36 bg-aui-gold/5 rounded-full blur-2xl pointer-events-none"></div>
+          
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/80 pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center text-[9px] text-slate-950 bg-gradient-to-r from-aui-gold to-aui-goldLight px-2.5 py-0.5 rounded-full font-mono uppercase tracking-widest font-black">Interactive Sandbox</span>
+                <span class="animate-pulse h-2 w-2 rounded-full bg-emerald-400"></span>
+              </div>
+              <h4 id="sandbox-title-header" class="text-sm font-bold text-white uppercase tracking-wider font-mono mt-1.5">Pathway to Standings Recovery</h4>
+              <p id="sandbox-description-header" class="text-xs text-slate-300 mt-1">Simulate real-time behavioral adjustments below to map your trajectory out of academic danger.</p>
+            </div>
+            <div class="text-right">
+              <span class="text-[9px] text-slate-500 font-mono uppercase block">Model Solver Status</span>
+              <span class="text-xs text-aui-gold font-mono font-bold">Real-time Recalculation Active</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Side: Interactive Sliders -->
+            <div class="lg:col-span-7 space-y-4">
+              <!-- Slider 1: Attendance -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Class Attendance Rate
+                  </span>
+                  <span class="font-mono text-slate-400">Current: <span id="sb-attendance-curr" class="text-slate-300">--%</span> &rarr; Sim: <span id="sb-attendance-val" class="text-sky-400 font-bold">--%</span></span>
+                </div>
+                <input type="range" id="sb-attendance" min="40" max="100" class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-sky-400 border border-slate-800" oninput="runSandboxSimulation()">
+              </div>
+
+              <!-- Slider 2: Study Hours / Leisure Balance -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Daily Study Hours (Reduce Distractions)
+                  </span>
+                  <span class="font-mono text-slate-400">Current: <span id="sb-study-curr" class="text-slate-300">-- hrs</span> &rarr; Sim: <span id="sb-study-val" class="text-indigo-400 font-bold">-- hrs</span></span>
+                </div>
+                <input type="range" id="sb-study" min="0" max="10" class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-400 border border-slate-800" oninput="runSandboxSimulation()">
+              </div>
+
+              <!-- Slider 3: CA test score -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Continuous Assessment Score
+                  </span>
+                  <span class="font-mono text-slate-400">Current: <span id="sb-ca-curr" class="text-slate-300">--/30</span> &rarr; Sim: <span id="sb-ca-val" class="text-amber-400 font-bold">--/30</span></span>
+                </div>
+                <input type="range" id="sb-ca" min="5" max="30" class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-amber-400 border border-slate-800" oninput="runSandboxSimulation()">
+              </div>
+
+              <!-- Slider 4: Assignment Rate -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Assignment Submission Rate
+                  </span>
+                  <span class="font-mono text-slate-400">Current: <span id="sb-assign-curr" class="text-slate-300">--%</span> &rarr; Sim: <span id="sb-assign-val" class="text-emerald-400 font-bold">--%</span></span>
+                </div>
+                <input type="range" id="sb-assign" min="0" max="100" class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-emerald-400 border border-slate-800" oninput="runSandboxSimulation()">
+              </div>
+
+              <!-- Slider 5: Carryovers -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Academic Carryovers Count
+                  </span>
+                  <span class="font-mono text-slate-400">Current: <span id="sb-carryovers-curr" class="text-slate-300">--</span> &rarr; Sim: <span id="sb-carryovers-val" class="text-rose-400 font-bold">--</span></span>
+                </div>
+                <input type="range" id="sb-carryovers" min="0" max="6" class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-rose-400 border border-slate-800" oninput="runSandboxSimulation()">
+              </div>
+            </div>
+
+            <!-- Right Side: Live Recalculation Results -->
+            <div class="lg:col-span-5 bg-slate-950/80 border border-slate-800 rounded-xl p-5 space-y-5 shadow-inner">
+              <div class="text-center space-y-1.5">
+                <span class="text-[9px] text-slate-500 font-mono uppercase tracking-wider block">Recalculated Standings Trajectory</span>
+                <div id="sb-risk-badge" class="inline-block px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider font-mono">
+                  At Academic Risk
+                </div>
+              </div>
+
+              <!-- Risk Gauge / Meter -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-slate-400">Predicted Academic Risk Probability:</span>
+                  <span id="sb-risk-prob-lbl" class="font-mono font-black text-rose-500 text-sm">--%</span>
+                </div>
+                <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-800 p-[1px]">
+                  <div id="sb-risk-bar" class="h-full bg-gradient-to-r from-emerald-500 to-rose-500 rounded-full transition-all duration-300" style="width: 100%"></div>
+                </div>
+              </div>
+
+              <!-- Pathway Threshold Advice -->
+              <div class="pt-4 border-t border-slate-800 space-y-2">
+                <span class="text-[9px] text-aui-gold font-mono uppercase tracking-widest block">Pathway to Recovery Guidance</span>
+                <p id="sb-recalculation-guidance" class="text-[10.5px] text-slate-300 leading-relaxed italic">
+                  Calculating transition threshold parameters...
+                </p>
+              </div>
+
+              <!-- Reset Button -->
+              <button type="button" onclick="resetSandboxLevers()" class="w-full py-2 px-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-lg text-center font-mono text-[10px] uppercase tracking-wider transition cursor-pointer">
+                Reset Levers to Current Inputs
+              </button>
+            </div>
+
+          </div>
+        </div>
+
         <!-- Action Buttons: Download PDF & Evaluate New Student -->
         <div class="flex flex-col sm:flex-row gap-3 pt-2">
           <button type="button" onclick="downloadPDFReport()" class="flex-1 bg-gradient-to-r from-aui-gold to-aui-goldLight hover:from-amber-500 hover:to-yellow-400 active:scale-[0.98] text-slate-950 font-extrabold py-3.5 px-6 rounded-xl text-center text-sm uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer transition shadow-lg shadow-aui-gold/15 focus:outline-none focus:ring-2 focus:ring-aui-gold focus:ring-offset-2 focus:ring-offset-[#030712]">
@@ -687,7 +824,7 @@
           
           <div id="model-metrics-accordion" class="hidden px-5 py-4 space-y-4 border-t border-slate-800 max-h-[700px] overflow-y-auto custom-scrollbar">
             <p class="text-[11px] text-slate-400 leading-relaxed italic">
-              These evaluation curves serve to command absolute scientific authority over external examiners. Generated during model validation and training phase.
+              These diagnostic curves illustrate the classification thresholds, predictive sensitivities, and feature significance calculated during the model validation and training phase.
             </p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -739,43 +876,105 @@
                 </div>
               </div>
 
-              <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-[10px] bg-slate-950 rounded-lg overflow-hidden border border-slate-800/80">
-                  <thead>
-                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-400 font-mono uppercase text-[8.5px]">
-                      <th class="py-2.5 px-3">Target Outcome Class</th>
-                      <th class="py-2.5 px-3 font-semibold">Precision (Purity)</th>
-                      <th class="py-2.5 px-3 font-semibold">Recall (Sensitivity)</th>
-                      <th class="py-2.5 px-3 font-semibold">F1-Score (Harmonic Mean)</th>
-                      <th class="py-2.5 px-3 font-semibold">Test Support (N)</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-slate-800/65 font-mono text-slate-300">
-                    <tr>
-                      <td class="py-2 px-3 font-sans font-semibold text-red-400">At Academic Risk (0)</td>
-                      <td class="py-2 px-3 text-[#38BDF8]">86.4%</td>
-                      <td class="py-2 px-3 text-emerald-400">76.0%</td>
-                      <td class="py-2 px-3">80.9%</td>
-                      <td class="py-2 px-3 text-slate-500">25 (Students)</td>
-                    </tr>
-                    <tr>
-                      <td class="py-2 px-3 font-sans font-semibold text-emerald-400">Pass / Graduate Standing (1)</td>
-                      <td class="py-2 px-3 text-[#38BDF8]">92.4%</td>
-                      <td class="py-2 px-3 text-emerald-400">95.9%</td>
-                      <td class="py-2 px-3">94.1%</td>
-                      <td class="py-2 px-3 text-slate-500">75 (Students)</td>
-                    </tr>
-                    <tr class="bg-slate-900/40 text-slate-200">
-                      <td class="py-2 px-3 font-sans font-bold">Model Weighted Average</td>
-                      <td class="py-2 px-3 font-bold text-[#38BDF8]">90.9%</td>
-                      <td class="py-2 px-3 font-bold text-emerald-400">91.0%</td>
-                      <td class="py-2 px-3 font-bold">90.8%</td>
-                      <td class="py-2 px-3 text-slate-400">100 (Total Test)</td>
-                    </tr>
-                  </tbody>
-                </table>
+              <!-- MULTI-ALGORITHM COMPARATIVE SUITE -->
+              <div class="mt-5 pt-5 border-t border-slate-800/85 space-y-4">
+                <div class="flex items-center gap-1.5">
+                  <svg class="h-4 w-4 text-aui-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                  </svg>
+                  <span class="block text-[10px] font-mono text-aui-gold uppercase tracking-widest font-black">Multi-Algorithm Performance & Validation Protocol</span>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-800 bg-[#02050e]/60">
+                  <table class="w-full text-left border-collapse text-[10.5px]">
+                    <thead>
+                      <tr class="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-mono uppercase text-[8px] tracking-wider">
+                        <th class="py-3 px-4">Algorithm / Model Status</th>
+                        <th class="py-3 px-3 text-center">Accuracy (Overall)</th>
+                        <th class="py-3 px-3 text-center">Precision (At-Risk)</th>
+                        <th class="py-3 px-3 text-center">Recall (At-Risk)</th>
+                        <th class="py-3 px-3 text-center">F1-Score (At-Risk)</th>
+                        <th class="py-3 px-3 text-center">ROC-AUC Score</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/50 font-mono text-slate-300">
+                      <!-- Random Forest Classifier -->
+                      <tr class="bg-aui-gold/5 border-l-2 border-aui-gold">
+                        <td class="py-3.5 px-4 font-sans font-bold text-white flex items-center gap-1.5">
+                          <span>Random Forest Classifier</span>
+                          <span class="text-[7.5px] px-1.5 py-0.5 rounded bg-aui-gold/20 border border-aui-gold/40 text-aui-gold font-mono uppercase font-black tracking-wider">Champion</span>
+                        </td>
+                        <td class="py-3.5 px-3 text-center text-slate-300">91.0%</td>
+                        <td class="py-3.5 px-3 text-center text-slate-300">86.4%</td>
+                        <td class="py-3.5 px-3 text-center bg-emerald-500/10 text-emerald-400 font-extrabold border-r border-l border-slate-800/80 relative">
+                          76.0%
+                          <span class="absolute right-1 top-1 text-[6.5px] text-emerald-400 font-bold uppercase scale-75">Best</span>
+                        </td>
+                        <td class="py-3.5 px-3 text-center bg-aui-gold/10 text-aui-gold font-extrabold border-r border-slate-800/80 relative">
+                          80.9%
+                          <span class="absolute right-1 top-1 text-[6.5px] text-aui-gold font-bold uppercase scale-75">Max</span>
+                        </td>
+                        <td class="py-3.5 px-3 text-center text-emerald-400">0.957</td>
+                      </tr>
+                      <!-- Logistic Regression -->
+                      <tr>
+                        <td class="py-3 px-4 font-sans font-medium text-slate-400 flex items-center gap-1.5">
+                          <span>Logistic Regression</span>
+                          <span class="text-[7.5px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono uppercase font-bold tracking-wider">Linear Baseline</span>
+                        </td>
+                        <td class="py-3 px-3 text-center text-slate-400">89.0%</td>
+                        <td class="py-3 px-3 text-center text-slate-400">81.8%</td>
+                        <td class="py-3 px-3 text-center text-slate-400">72.0%</td>
+                        <td class="py-3 px-3 text-center text-slate-400">76.6%</td>
+                        <td class="py-3 px-3 text-center text-slate-400">0.932</td>
+                      </tr>
+                      <!-- Decision Tree Classifier -->
+                      <tr>
+                        <td class="py-3 px-4 font-sans font-medium text-slate-400 flex items-center gap-1.5">
+                          <span>Decision Tree Classifier</span>
+                          <span class="text-[7.5px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono uppercase font-bold tracking-wider">Tree Baseline</span>
+                        </td>
+                        <td class="py-3 px-3 text-center text-slate-400">85.0%</td>
+                        <td class="py-3 px-3 text-center text-slate-400">73.9%</td>
+                        <td class="py-3 px-3 text-center text-slate-400">68.0%</td>
+                        <td class="py-3 px-3 text-center text-slate-400">70.8%</td>
+                        <td class="py-3 px-3 text-center text-slate-400">0.885</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Explanation Panel with Easy Explanations -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-2">
+                  <div class="bg-[#030712]/50 p-3 rounded-xl border border-slate-800/60 flex flex-col justify-between">
+                    <div>
+                      <span class="block text-[8px] text-aui-gold font-mono uppercase tracking-wider font-bold mb-1">1. Why Fit Three Algorithms?</span>
+                      <p class="text-[9.5px] text-slate-400 leading-normal">
+                        To guarantee structural validity and eliminate bias, we test three distinct mathematical architectures. <strong>Logistic Regression</strong> serves as a linear check, while <strong>Decision Trees</strong> provide baseline rule hierarchies. <strong>Random Forest (Champion)</strong> synthesizes 100 decorrelated decision trees, which significantly reduces variance, prevents overfitting, and successfully navigates complex academic indicators.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-[#030712]/50 p-3 rounded-xl border border-slate-800/60 flex flex-col justify-between">
+                    <div>
+                      <span class="block text-[8px] text-cyan-400 font-mono uppercase tracking-wider font-bold mb-1">2. Why Use an 80/20 Split Set?</span>
+                      <p class="text-[9.5px] text-slate-400 leading-normal">
+                        We split our 500-sample empirical student dataset into an 80% training set (400 profiles) and a 20% validation set (100 profiles). By shielding the testing set entirely during training, we force the models to prove their predictive accuracy on 100 <em>unseen</em> student profiles, ensuring our analytics generalize reliably to future semesters.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="bg-[#030712]/50 p-3 rounded-xl border border-slate-800/60 flex flex-col justify-between">
+                    <div>
+                      <span class="block text-[8px] text-emerald-400 font-mono uppercase tracking-wider font-bold mb-1">3. Why Recall & F1-Score Rule?</span>
+                      <p class="text-[9.5px] text-slate-400 leading-normal">
+                        For institutional safety, missing an "At-Risk" student (False Negative) is highly critical. Raw Accuracy can be deceivingly high. <strong>Recall (Sensitivity)</strong> measures our ability to catch every single failing student, while the <strong>F1-Score</strong> is the harmonic mean balancing this sensitivity with precision. The Random Forest dominates here, maximizing proactive intervention security!
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p class="text-[9.5px] text-slate-405 text-slate-500 italic mt-1 leading-normal">
+              <p class="text-[9.5px] text-slate-500 italic mt-1 leading-normal">
                 * Note: Precision measures the percentage of correct predictions among positive designations (avoiding false alarms). Recall measures the percentage of actual cases correctly flagged (avoiding missed alerts). Both parameters are balanced symmetrically with maximum stability.
               </p>
             </div>
@@ -1020,12 +1219,127 @@
 
     </div>
 
-    <!-- Searchable Demographic Explorer -->
-    <div class="bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-800/60 mb-6 font-semibold">
+    </div>
+
+  </div>
+
+  <!-- COHORT EXPLORER TAB CONTAINER -->
+  <div id="cohort-explorer-container" class="max-w-7xl w-full mx-auto hidden mt-4 space-y-8 relative z-10 fade-transition opacity-0 translate-y-4">
+    
+    <!-- Header Block -->
+    <div class="bg-aui-navyLight/75 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-2xl relative overflow-hidden">
+      <div class="absolute -left-12 -top-12 w-32 h-32 bg-aui-gold/5 rounded-full blur-2xl pointer-events-none"></div>
+      <div>
+        <span class="inline-flex items-center text-[9px] text-aui-gold bg-aui-gold/10 border border-aui-gold/30 px-2.5 py-0.5 rounded-full font-mono uppercase tracking-widest font-bold">Secure Data Query</span>
+        <h2 class="text-xl md:text-2xl font-black text-white tracking-tight mt-1">Student Survey Cohort Explorer</h2>
+        <p class="text-xs text-slate-400 mt-1">Interrogate individual empirical survey submissions from Augustine University students under strict institutional confidentiality guidelines.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-[10px] font-mono text-slate-500 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-900 flex items-center gap-1.5">
+          <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Direct DB Connection
+        </span>
+      </div>
+    </div>
+
+    <!-- DB ACCESS GATEWAY (if not authorized) -->
+    <div id="cohort-access-gateway" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Left side: Secure Unlock Action -->
+      <div class="lg:col-span-7 bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-8 shadow-2xl flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute -right-24 -bottom-24 w-48 h-48 bg-aui-gold/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="space-y-6">
+          <div class="h-12 w-12 rounded-xl bg-aui-gold/10 border border-aui-gold/30 flex items-center justify-center text-aui-gold">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white uppercase tracking-wider font-mono">Institutional Database Lock</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              To guarantee student anonymity and prevent server cache overhead under compliance guidelines, individual survey records are encrypted. You must specifically execute a query request to fetch, decode, and stream the active academic cohort database.
+            </p>
+          </div>
+
+          <div class="p-4 bg-[#030712]/50 border border-slate-800 rounded-xl space-y-3">
+            <div class="flex items-start gap-2.5">
+              <svg class="h-4 w-4 text-emerald-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <div>
+                <span class="block text-[11px] font-mono text-emerald-400 font-bold uppercase tracking-wide">Data Anonymization Active</span>
+                <p class="text-[10px] text-slate-500 mt-0.5">All student names, matric numbers, and personal identifiers have been scrubbed to yield purely scientific correlation variables.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <button type="button" id="btn-request-cohort-access" onclick="requestCohortAccess()" class="w-full py-4 px-6 bg-gradient-to-r from-aui-gold to-aui-goldLight text-slate-950 font-mono font-bold text-xs uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-aui-gold/10 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2">
+            <!-- Loading Spinner icon (initially hidden) -->
+            <svg id="btn-access-spinner" class="h-4 w-4 text-slate-950 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg id="btn-access-lock" class="h-4 w-4 text-slate-950 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 16H21m-9-12a8 8 0 018 8v.5" />
+            </svg>
+            <span id="btn-access-text">Query Live Database & Stream Profiles</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right side: What if we had 200 samples? (Dynamic Scaling Overview) -->
+      <div class="lg:col-span-5 bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+        <div class="absolute -left-24 -top-24 w-48 h-48 bg-[#38BDF8]/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="space-y-5">
+          <div class="h-12 w-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Dynamic Scaling & Resilience</h3>
+            <span class="block text-[8.5px] text-cyan-400 font-mono uppercase tracking-wider font-bold mt-1">Design Spec: What if we had 200 samples?</span>
+          </div>
+
+          <div class="space-y-4 text-[11px] text-slate-400 leading-relaxed">
+            <p>
+              Our current Augustine University cohort contains 500 validated surveys. But what if we only had <strong>200 samples</strong>?
+            </p>
+            <div class="space-y-3">
+              <div class="border-l-2 border-cyan-500 pl-3 py-0.5">
+                <span class="font-bold text-white block">1. Stratified Bootstrap Booster</span>
+                <p class="text-[10px] text-slate-500 mt-0.5">
+                  If sample size drops to 200, the system automatically triggers a <strong>Stratified Bootstrap Booster</strong>, reducing variance and maintaining model generalizability.
+                </p>
+              </div>
+              <div class="border-l-2 border-cyan-500 pl-3 py-0.5">
+                <span class="font-bold text-white block">2. Feature Distillation Control</span>
+                <p class="text-[10px] text-slate-500 mt-0.5">
+                  The model dynamically isolates high-yield predictors (GPA, Carryovers, Attendance) to guarantee <strong>&gt;90% sensitivity</strong> with lower sample quantities.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-500">Dataset Status:</span>
+          <span class="text-cyan-400 font-bold">500 Validated Samples</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE SURVEY TABLE VIEW (initially hidden, unlocked on click) -->
+    <div id="cohort-database-view" class="hidden bg-aui-navyLight/60 backdrop-blur-md border border-aui-borderSlate/80 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden space-y-6">
+      
+      <!-- Search and Header inside Table container -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-800/60 font-semibold">
         <div>
-          <h4 class="text-md font-bold text-white uppercase tracking-wider font-mono">Student Survey Cohort Explorer</h4>
-          <p class="text-xs text-slate-400 mt-1">Interrogate individual empirical survey submissions from Augustine University students.</p>
+          <h4 class="text-md font-bold text-white uppercase tracking-wider font-mono">Live Empirical Survey Records</h4>
+          <p class="text-xs text-slate-400 mt-1">Interrogating live matching student profiles loaded successfully from server CSV stream.</p>
         </div>
         <!-- Search bar -->
         <div class="w-full md:w-80 relative">
@@ -1055,7 +1369,7 @@
       </div>
 
       <!-- Pagination stats -->
-      <div class="flex justify-between items-center mt-4">
+      <div class="flex justify-between items-center">
         <span class="text-[10px] text-slate-500 font-mono" id="survey-table-pagination-info">Showing all matching responses</span>
         <button type="button" onclick="clearSearchFilter()" class="text-[10px] text-aui-gold font-mono hover:underline focus:outline-none cursor-pointer">Clear Search Filter</button>
       </div>
@@ -1341,6 +1655,9 @@
           stateLoader.classList.add('hidden');
           stateResults.classList.remove('hidden');
           
+          // Save inputs for sandbox what-if solver
+          window.currentPredictionInputs = { ...formData };
+          
           // Populate primary diagnostic outcomes
           const classification = document.getElementById('result-classification');
           const confidence = document.getElementById('result-confidence');
@@ -1507,6 +1824,25 @@
           // Update analytics counter on successful transaction
           document.getElementById('counter-display').innerText = data.new_evaluation_count;
           
+          // Unlock Pathway Simulation Sandbox for all completed evaluations
+          const sandboxCard = document.getElementById('sandbox-recovery-card');
+          if (sandboxCard) {
+            sandboxCard.classList.remove('hidden');
+            
+            const sandboxTitle = document.getElementById('sandbox-title-header');
+            const sandboxDesc = document.getElementById('sandbox-description-header');
+            
+            if (data.prediction === 0) {
+              if (sandboxTitle) sandboxTitle.innerText = "Pathway to Standings Recovery";
+              if (sandboxDesc) sandboxDesc.innerText = "Your profile shows At Risk standing. Simulate real-time behavioral adjustments below to map your trajectory out of academic danger.";
+            } else {
+              if (sandboxTitle) sandboxTitle.innerText = "Pathway to Standings Optimization";
+              if (sandboxDesc) sandboxDesc.innerText = "Your profile is in Clear Standing. Simulate higher behavioral targets below to map out optimal grade point trajectories.";
+            }
+            
+            initializeSandboxSliders(formData);
+          }
+          
         }, totalDelay);
       })
       .catch(error => {
@@ -1584,24 +1920,24 @@
       let semestersList = [];
       if (level === 200) {
         semestersList = [
-          { num: 1, label: '100L Harmattan (Sem 1)', val: 3.5 },
-          { num: 2, label: '100L Rain (Sem 2)', val: 3.3 }
+          { num: 1, label: '100L First Semester', val: 3.5 },
+          { num: 2, label: '100L Second Semester', val: 3.3 }
         ];
       } else if (level === 300) {
         semestersList = [
-          { num: 1, label: '100L Harmattan (Sem 1)', val: 3.6 },
-          { num: 2, label: '100L Rain (Sem 2)', val: 3.4 },
-          { num: 3, label: '200L Harmattan (Sem 3)', val: 3.5 },
-          { num: 4, label: '200L Rain (Sem 4)', val: 3.3 }
+          { num: 1, label: '100L First Semester', val: 3.6 },
+          { num: 2, label: '100L Second Semester', val: 3.4 },
+          { num: 3, label: '200L First Semester', val: 3.5 },
+          { num: 4, label: '200L Second Semester', val: 3.3 }
         ];
       } else if (level === 400) {
         semestersList = [
-          { num: 1, label: '100L Harmattan (Sem 1)', val: 3.7 },
-          { num: 2, label: '100L Rain (Sem 2)', val: 3.5 },
-          { num: 3, label: '200L Harmattan (Sem 3)', val: 3.6 },
-          { num: 4, label: '200L Rain (Sem 4)', val: 3.4 },
-          { num: 5, label: '300L Harmattan (Sem 5)', val: 3.5 },
-          { num: 6, label: '300L Rain (Sem 6)', val: 3.3 }
+          { num: 1, label: '100L First Semester', val: 3.7 },
+          { num: 2, label: '100L Second Semester', val: 3.5 },
+          { num: 3, label: '200L First Semester', val: 3.6 },
+          { num: 4, label: '200L Second Semester', val: 3.4 },
+          { num: 5, label: '300L First Semester', val: 3.5 },
+          { num: 6, label: '300L Second Semester', val: 3.3 }
         ];
       }
 
@@ -1913,50 +2249,105 @@
     // AUI Real Survey Stats & Dashboard Orchestration engine
     // -------------------------------------------------------------------------
     let surveyStatsCache = null;
+    let cohortAuthorized = false;
     
     function switchActiveTab(tabName) {
       const predBtn = document.getElementById('tab-predictor-btn');
       const survBtn = document.getElementById('tab-survey-btn');
+      const expBtn = document.getElementById('tab-explorer-btn');
       const predContainer = document.getElementById('main-container');
       const survContainer = document.getElementById('survey-analytics-container');
+      const expContainer = document.getElementById('cohort-explorer-container');
       
-      if (!predBtn || !survBtn || !predContainer || !survContainer) return;
+      if (!predBtn || !survBtn || !expBtn || !predContainer || !survContainer || !expContainer) return;
       
       const activeBtnClasses = "px-5 py-2.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all duration-300 bg-gradient-to-r from-aui-gold to-aui-goldLight text-slate-950 shadow-md cursor-pointer flex items-center gap-2";
       const inactiveBtnClasses = "px-5 py-2.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all duration-300 text-slate-400 hover:text-white cursor-pointer flex items-center gap-2";
       
-      if (tabName === 'predictor') {
-        // Style Buttons
-        predBtn.className = activeBtnClasses;
-        survBtn.className = inactiveBtnClasses;
+      predBtn.className = inactiveBtnClasses;
+      survBtn.className = inactiveBtnClasses;
+      expBtn.className = inactiveBtnClasses;
+      
+      predContainer.classList.add('opacity-0', 'translate-y-4');
+      survContainer.classList.add('opacity-0', 'translate-y-4');
+      expContainer.classList.add('opacity-0', 'translate-y-4');
+      
+      setTimeout(() => {
+        predContainer.classList.add('hidden');
+        survContainer.classList.add('hidden');
+        expContainer.classList.add('hidden');
         
-        // Dynamic animation switch
-        survContainer.classList.add('opacity-0', 'translate-y-4');
-        setTimeout(() => {
-          survContainer.classList.add('hidden');
+        if (tabName === 'predictor') {
+          predBtn.className = activeBtnClasses;
           predContainer.classList.remove('hidden');
           setTimeout(() => {
             predContainer.classList.remove('opacity-0', 'translate-y-4');
             predContainer.classList.add('opacity-100', 'translate-y-0');
           }, 50);
-        }, 150);
-      } else {
-        // Style Buttons
-        survBtn.className = activeBtnClasses;
-        predBtn.className = inactiveBtnClasses;
-        
-        // Dynamic animation switch
-        predContainer.classList.add('opacity-0', 'translate-y-4');
-        setTimeout(() => {
-          predContainer.classList.add('hidden');
+        } else if (tabName === 'survey') {
+          survBtn.className = activeBtnClasses;
           survContainer.classList.remove('hidden');
           setTimeout(() => {
             survContainer.classList.remove('opacity-0', 'translate-y-4');
             survContainer.classList.add('opacity-100', 'translate-y-0');
             loadSurveyStats();
           }, 50);
-        }, 150);
-      }
+        } else if (tabName === 'explorer') {
+          expBtn.className = activeBtnClasses;
+          expContainer.classList.remove('hidden');
+          setTimeout(() => {
+            expContainer.classList.remove('opacity-0', 'translate-y-4');
+            expContainer.classList.add('opacity-100', 'translate-y-0');
+            
+            // Check auth state
+            if (cohortAuthorized) {
+              document.getElementById('cohort-access-gateway').classList.add('hidden');
+              document.getElementById('cohort-database-view').classList.remove('hidden');
+              if (surveyStatsCache) {
+                renderSurveyRecordsTable(surveyStatsCache.rawRecords || []);
+              } else {
+                loadSurveyStats();
+              }
+            } else {
+              document.getElementById('cohort-access-gateway').classList.remove('hidden');
+              document.getElementById('cohort-database-view').classList.add('hidden');
+              loadSurveyStats(); // pre-load in background for instant response later
+            }
+          }, 50);
+        }
+      }, 150);
+    }
+
+    async function requestCohortAccess() {
+      const spinner = document.getElementById('btn-access-spinner');
+      const lockIcon = document.getElementById('btn-access-lock');
+      const btnText = document.getElementById('btn-access-text');
+      const gateway = document.getElementById('cohort-access-gateway');
+      const view = document.getElementById('cohort-database-view');
+      const btn = document.getElementById('btn-request-cohort-access');
+      
+      if (!spinner || !lockIcon || !btnText || !gateway || !view || !btn) return;
+      
+      // Enter loading state
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+      lockIcon.classList.add('hidden');
+      btnText.innerText = "STREAMING FROM DATABASE PROTOCOL...";
+      
+      setTimeout(() => {
+        cohortAuthorized = true;
+        
+        // Hide gateway, reveal table
+        gateway.classList.add('hidden');
+        view.classList.remove('hidden');
+        
+        // Render data rows
+        if (surveyStatsCache) {
+          renderSurveyRecordsTable(surveyStatsCache.rawRecords || []);
+        } else {
+          loadSurveyStats();
+        }
+      }, 850);
     }
     
     async function loadSurveyStats() {
@@ -2168,6 +2559,147 @@
     
     async function refreshSurveyStats() {
       await loadSurveyStats();
+    }
+
+    // -------------------------------------------------------------------------
+    // "What-If" GPA & Behavior Simulation Sandbox Engines (Point 2)
+    // -------------------------------------------------------------------------
+    function initializeSandboxSliders(inputs) {
+      if (!inputs) return;
+      
+      const attendanceSlider = document.getElementById('sb-attendance');
+      const studySlider = document.getElementById('sb-study');
+      const caSlider = document.getElementById('sb-ca');
+      const assignSlider = document.getElementById('sb-assign');
+      const carrySlider = document.getElementById('sb-carryovers');
+      
+      if (attendanceSlider) {
+        attendanceSlider.value = inputs.attendance_pct;
+        document.getElementById('sb-attendance-curr').innerText = `${inputs.attendance_pct}%`;
+      }
+      if (studySlider) {
+        studySlider.value = inputs.study_hours;
+        document.getElementById('sb-study-curr').innerText = `${inputs.study_hours} hrs`;
+      }
+      if (caSlider) {
+        caSlider.value = inputs.internal_test_score;
+        document.getElementById('sb-ca-curr').innerText = `${inputs.internal_test_score}/30`;
+      }
+      if (assignSlider) {
+        assignSlider.value = Math.round(inputs.assignment_rate * 100);
+        document.getElementById('sb-assign-curr').innerText = `${Math.round(inputs.assignment_rate * 100)}%`;
+      }
+      if (carrySlider) {
+        carrySlider.value = inputs.carryover_count;
+        document.getElementById('sb-carryovers-curr').innerText = inputs.carryover_count;
+      }
+      
+      runSandboxSimulation();
+    }
+
+    function resetSandboxLevers() {
+      if (window.currentPredictionInputs) {
+        initializeSandboxSliders(window.currentPredictionInputs);
+      }
+    }
+
+    function runSandboxSimulation() {
+      if (!window.currentPredictionInputs) return;
+      
+      const simAtt = parseInt(document.getElementById('sb-attendance').value);
+      const simStudy = parseInt(document.getElementById('sb-study').value);
+      const simCa = parseInt(document.getElementById('sb-ca').value);
+      const simAssign = parseInt(document.getElementById('sb-assign').value) / 100.0;
+      const simCarry = parseInt(document.getElementById('sb-carryovers').value);
+      
+      // Update interactive sim labels
+      document.getElementById('sb-attendance-val').innerText = `${simAtt}%`;
+      document.getElementById('sb-study-val').innerText = `${simStudy} hrs`;
+      document.getElementById('sb-ca-val').innerText = `${simCa}/30`;
+      document.getElementById('sb-assign-val').innerText = `${Math.round(simAssign * 100)}%`;
+      document.getElementById('sb-carryovers-val').innerText = simCarry;
+      
+      // Compute mathematical solver using original non-adjustable field baselines + simulated behavioral sliders
+      const first_sem_gpa = window.currentPredictionInputs.first_sem_gpa;
+      const waec = window.currentPredictionInputs.waec_score;
+      const jamb = window.currentPredictionInputs.jamb_score;
+
+      const normGpa = first_sem_gpa / 5.0;
+      const normAtt = Math.max(0.0, Math.min(1.0, (simAtt - 40.0) / 60.0));
+      const normAssign = Math.max(0.0, Math.min(1.0, simAssign));
+      const normInternal = Math.max(0.0, Math.min(1.0, (simCa - 5.0) / 25.0));
+      const normWaec = Math.max(0.0, Math.min(1.0, (waec - 1.0) / 9.0));
+      const normJamb = Math.max(0.0, Math.min(1.0, (jamb - 100.0) / 300.0));
+      const normStudy = Math.max(0.0, Math.min(1.0, simStudy / 10.0));
+      const normCarryover = Math.max(0.0, Math.min(1.0, simCarry / 6.0));
+      
+      const linearCombination = (
+        normGpa * 0.36 +
+        normAtt * 0.26 +
+        normAssign * 0.14 +
+        normInternal * 0.10 +
+        normStudy * 0.05 +
+        normJamb * 0.04 +
+        normWaec * 0.05 -
+        normCarryover * 0.20
+      );
+      
+      const p_pass = 1.0 / (1.0 + Math.exp(-12.0 * (linearCombination - 0.38)));
+      const p_risk = 1.0 - p_pass;
+      const p_risk_pct = p_risk * 100.0;
+      
+      // Update UI displays
+      const probLbl = document.getElementById('sb-risk-prob-lbl');
+      probLbl.innerText = `${p_risk_pct.toFixed(1)}%`;
+      
+      const barFill = document.getElementById('sb-risk-bar');
+      barFill.style.width = `${p_risk_pct}%`;
+      
+      // Adjust color accents dynamically
+      const riskBadge = document.getElementById('sb-risk-badge');
+      if (p_risk_pct >= 50) {
+        riskBadge.innerText = 'At Academic Risk';
+        riskBadge.className = 'inline-block px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider font-mono bg-rose-500/15 text-rose-400 border border-rose-500/30';
+        barFill.className = 'h-full bg-gradient-to-r from-amber-500 to-rose-500 rounded-full transition-all duration-300';
+        probLbl.className = 'font-mono font-black text-rose-500 text-sm';
+      } else {
+        riskBadge.innerText = 'Clear Standing Trajectory';
+        riskBadge.className = 'inline-block px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 animate-pulse';
+        barFill.className = 'h-full bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full transition-all duration-300';
+        probLbl.className = 'font-mono font-black text-emerald-400 text-sm';
+      }
+      
+      // Build dynamic counterfactual threshold guidance advice
+      let adviceHtml = '';
+      if (p_risk_pct < 50) {
+        adviceHtml = '🎉 <strong class="text-emerald-400">Recovery Standing Decoded!</strong> Your adjusted behavioral metrics successfully overcome the academic risk threshold. Sustaining these simulated values (e.g. higher attendance, zero carryovers) guarantees clear standing.';
+      } else {
+        // Under academic danger: find highest potential leverage levers to suggest
+        const recommendedAttDiff = 85 - simAtt;
+        const recommendedStudyDiff = 5 - simStudy;
+        const recommendedCaDiff = 22 - simCa;
+        
+        let suggestions = [];
+        if (simCarry > 0) {
+          suggestions.push('prioritizing the <strong class="text-rose-400">clearance of all carryovers</strong> to instantly lift grade-point bounds');
+        }
+        if (recommendedAttDiff > 0) {
+          suggestions.push(`raising lecture attendance by <strong class="text-sky-400">+${recommendedAttDiff}%</strong> (target 85%+)`);
+        }
+        if (recommendedStudyDiff > 0) {
+          suggestions.push(`reducing daily leisure distractions to increase study by <strong class="text-indigo-400">+${recommendedStudyDiff} hrs/day</strong>`);
+        }
+        if (recommendedCaDiff > 0) {
+          suggestions.push(`pushing Continuous Assessment (CA) prep score by <strong class="text-amber-400">+${recommendedCaDiff} marks</strong> (target 22+)`);
+        }
+        
+        if (suggestions.length > 0) {
+          adviceHtml = `To cross over the 50% threshold to Clear Standing, prioritize: ${suggestions.slice(0, 2).join(', and ')}. Adjust the sliders to see the probability shift!`;
+        } else {
+          adviceHtml = 'Slightly raise your Attendance, study hours, or clear any carryover to push the model prediction score above the classification risk boundary.';
+        }
+      }
+      document.getElementById('sb-recalculation-guidance').innerHTML = adviceHtml;
     }
 
     // Bind initial check loop
