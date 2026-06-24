@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { z } from 'zod';
 
 const app = express();
 const PORT = 3000;
@@ -99,11 +100,17 @@ function getAndIncrementCounter(): number {
   try {
     let count = 247;
     if (fs.existsSync(COUNTER_PATH)) {
-      const data = JSON.parse(fs.readFileSync(COUNTER_PATH, 'utf8'));
-      count = data.evaluation_count || 247;
+      try {
+        const data = JSON.parse(fs.readFileSync(COUNTER_PATH, 'utf8'));
+        count = data.evaluation_count || 247;
+      } catch (parseErr) {
+        console.error('JSON decode error on counter.json, recovering:', parseErr);
+      }
     }
     count += 1;
-    fs.writeFileSync(COUNTER_PATH, JSON.stringify({ evaluation_count: count }, null, 2), 'utf8');
+    const tempPath = `${COUNTER_PATH}.${Date.now()}.${Math.random().toString(36).substring(2)}.tmp`;
+    fs.writeFileSync(tempPath, JSON.stringify({ evaluation_count: count }, null, 2), 'utf8');
+    fs.renameSync(tempPath, COUNTER_PATH);
     return count;
   } catch (err) {
     console.error('Error incrementing counter.json:', err);
@@ -148,20 +155,40 @@ app.get('/', (req, res) => {
 // -------------------------------------------------------------
 // Performance Inference POST Route
 // -------------------------------------------------------------
+
+const predictSchema = z.object({
+  student_level: z.coerce.number().min(100).max(600).default(100),
+  waec_score: z.coerce.number().min(1).max(9).default(7),
+  jamb_score: z.coerce.number().min(0).max(400).default(250),
+  internal_test_score: z.coerce.number().min(0).max(30).default(22),
+  first_sem_gpa: z.coerce.number().min(0.0).max(5.0).default(3.0),
+  attendance_pct: z.coerce.number().min(0).max(100).default(80),
+  carryover_count: z.coerce.number().min(0).default(0),
+  assignment_rate: z.coerce.number().min(0.0).max(1.0).default(0.80),
+  study_hours: z.coerce.number().min(0).max(24).default(4),
+});
+
 app.post('/predict', (req, res) => {
   try {
-    const data = req.body;
-    
-    // Extract variables with exact fallback definitions
-    const level = parseInt(data.student_level || 100);
-    const waec = parseInt(data.waec_score || 7);
-    const jamb = parseInt(data.jamb_score || 250);
-    const internal_test = parseInt(data.internal_test_score || 22);
-    const first_sem_gpa = parseFloat(data.first_sem_gpa || 3.0);
-    const attendance = parseInt(data.attendance_pct || 80);
-    const carryovers = parseInt(data.carryover_count || 0);
-    const assignment_rate = parseFloat(data.assignment_rate || 0.80);
-    const study_hours = parseInt(data.study_hours || 4);
+    const parseResult = predictSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: 'Invalid input data',
+        details: parseResult.error.errors
+      });
+    }
+
+    const {
+      student_level: level,
+      waec_score: waec,
+      jamb_score: jamb,
+      internal_test_score: internal_test,
+      first_sem_gpa,
+      attendance_pct: attendance,
+      carryover_count: carryovers,
+      assignment_rate,
+      study_hours
+    } = parseResult.data;
     
     // Core counter increment execution
     const newCount = getAndIncrementCounter();
@@ -300,19 +327,19 @@ app.post('/predict', (req, res) => {
     // Class Aware Interventions
     let classAwareAdvice = "";
     if (first_sem_gpa >= 4.5) {
-      classAwareAdvice = "Maintain your current high-performance framework. Keep active carryovers at exactly zero, sustain your study schedule, and ensure your lecture attendance remains above 90% to prevent complacency and secure your First Class degree.";
+      classAwareAdvice = "Maintain your high-performance routine: avoid carryovers, keep study hours, and sustain lecture attendance above 90%.";
     } else if (first_sem_gpa >= 4.0) {
-      classAwareAdvice = `You are within striking distance of a First Class. Raising your Continuous Assessment test results (currently ${internal_test}/30) and dedicating 2 extra hours of study daily will easily provide the leverage needed to push over the critical 4.50 threshold.`;
+      classAwareAdvice = `First Class is within reach. Raise your CA scores (currently ${internal_test}/30) and dedicate 2 extra hours of study daily.`;
     } else if (first_sem_gpa >= 3.5) {
-      classAwareAdvice = `Securely in the Second Class Upper bracket. To maintain this solid division or branch upwards, focus on maximizing your assignment submissions (currently at ${Math.round(assignment_rate * 100)}%) and systematically clear any potential core-module bottlenecks.`;
+      classAwareAdvice = `Securely in Second Class Upper. Maintain this by maximizing assignment submissions (currently ${Math.round(assignment_rate * 100)}%) and clearing bottlenecks.`;
     } else if (first_sem_gpa >= 3.0) {
-      classAwareAdvice = `You are close to climbing into the Second Class Upper division (3.50). Improving your daily study volume to at least 5-6 hours/day and targeting a score of 24+/30 in CA tests is highly recommended to bridge this boundary gap.`;
+      classAwareAdvice = `Close to Second Class Upper. Improve daily study volume to 5-6 hours/day and target 24+/30 in CA tests.`;
     } else if (first_sem_gpa >= 2.4) {
-      classAwareAdvice = `Positioned in the Second Class Lower division. To safeguard your standing from falling to a Third Class, ensure your lecture attendance satisfies the strict AUI 75% rule, clear any carryovers immediately, and actively seek peer academic tutorials.`;
+      classAwareAdvice = `Positioned in Second Class Lower. Safeguard your standing by maintaining 75% attendance, clearing carryovers, and seeking tutorials.`;
     } else if (first_sem_gpa >= 2.0) {
-      classAwareAdvice = "Underperformance warning. You are dangerously close to the Third Class boundary (below 2.40). Immediate corrective actions are required: eliminate distractions, increase study volume to at least 4.5 hours daily, and secure every CA test mark.";
+      classAwareAdvice = "Warning: Close to Third Class. Eliminate distractions, increase study volume to 4.5 hours daily, and secure every CA test mark.";
     } else {
-      classAwareAdvice = "Urgent Academic Recovery Protocol initiated. Your current standing (below 2.00) represents a graduation threat under university guidelines. Report to your academic adviser, clear all active carryover backlogs, and attend 100% of lectures.";
+      classAwareAdvice = "Urgent Academic Recovery Protocol: Report to academic adviser, clear all active carryover backlogs, and attend 100% of lectures.";
     }
 
     // Trajectory Nudge Simulation (Local Sensitivity Counterfactuals)
@@ -340,7 +367,7 @@ app.post('/predict', (req, res) => {
         name: "Lecture Attendance Rate",
         improvement: gpa_diff,
         description: `Raising lecture attendance from ${attendance}% to ${att_n}%`,
-        impactDesc: `Increasing attendance by +10% strengthens continuous participation weights, adding an estimated +${Math.max(0.01, gpa_diff).toFixed(2)} CGPA points.`
+        impactDesc: `Higher attendance strengthens continuous participation, adding an estimated +${Math.max(0.01, gpa_diff).toFixed(2)} CGPA points.`
       });
     }
 
@@ -366,7 +393,7 @@ app.post('/predict', (req, res) => {
         name: "Assignment Submission Fidelity",
         description: `Submitting ${Math.round(assign_n * 100)}% of assignments on time instead of ${Math.round(assignment_rate * 100)}%`,
         improvement: gpa_diff,
-        impactDesc: `Submitting your assignments regularly secures simple continuous assessment points, raising estimated GPA projection by +${Math.max(0.01, gpa_diff).toFixed(2)} CGPA points.`
+        impactDesc: `Regular assignment submission secures assessment points, raising estimated projection by +${Math.max(0.01, gpa_diff).toFixed(2)} CGPA points.`
       });
     }
 
@@ -392,7 +419,7 @@ app.post('/predict', (req, res) => {
         name: "Continuous Assessment (CA) Performance",
         description: `Pushing Continuous Assessment scores from ${internal_test}/30 to ${test_n}/30`,
         improvement: gpa_diff,
-        impactDesc: `A firmer grasp on internal test curriculum modules enhances academic survival signals, boosting estimated terminal standing by +${Math.max(0.01, gpa_diff).toFixed(2)} CGPA points.`
+        impactDesc: `Better internal test grasp boosts academic survival, adding +${Math.max(0.01, gpa_diff).toFixed(2)} CGPA points.`
       });
     }
 
@@ -1151,6 +1178,44 @@ app.get('/api/survey-stats', (req, res) => {
     console.error('Error generating survey stats:', err);
     res.status(500).json({ error: `Internal stats error: ${err.message}` });
   }
+});
+
+// -------------------------------------------------------------
+// Global Error & Health Routing
+// -------------------------------------------------------------
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// 404 Handler
+app.use((req, res, next) => {
+  res.status(404).send(`
+    <html>
+      <head><title>404 - Not Found</title><style>body { font-family: monospace; background: #0f172a; color: #f8fafc; padding: 2rem; }</style></head>
+      <body>
+        <h1>404 - Endpoint Not Found</h1>
+        <p>The requested URL ${req.originalUrl} was not found on this server.</p>
+        <a href="/" style="color: #cbd5e1;">Return to AUI Portal</a>
+      </body>
+    </html>
+  `);
+});
+
+// 500 Handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Unhandled Server Error:', err);
+  res.status(500).send(`
+    <html>
+      <head><title>500 - Internal Server Error</title><style>body { font-family: monospace; background: #0f172a; color: #f8fafc; padding: 2rem; }</style></head>
+      <body>
+        <h1>500 - Internal Server Error</h1>
+        <p>An unexpected condition was encountered while processing your request.</p>
+        <p style="color: #ef4444;">${err.message || 'Unknown error'}</p>
+        <a href="/" style="color: #cbd5e1;">Return to AUI Portal</a>
+      </body>
+    </html>
+  `);
 });
 
 // Launch server listener
