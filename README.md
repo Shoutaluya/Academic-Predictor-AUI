@@ -1,20 +1,25 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+Title: Academic Predictor for AUI
 
-# Run and deploy your AI Studio app
+Short description:
+An AI-powered tool that helps Augustine University (AUI) students predict academic outcomes, surface the top drivers of success/risk, and explore simple, actionable interventions.
 
-This contains everything you need to run your app locally.
+What the project does (concise):
+- Ingests student indicators (prior GPA, attendance, continuous assessment scores, assignment completion rate, entry exam scores, carryovers, study hours).
+- Produces a binary prediction (At Risk vs On Track) plus a calibrated confidence score.
+- Presents a probability distribution across graduation-class outcomes (First Class, 2:1, 2:2, Third/Pass).
+- Ranks feature importances and returns one prioritized “nudge” (actionable suggestion) with an estimated impact.
+- Compares the student to an empirical cohort via the survey analytics endpoint.
 
-View your app in AI Studio: https://ai.studio/apps/ba019d5a-2bed-4431-9358-a547df2d9413
+Why / how it works (simple explanation):
+- Primary inference: Node/Express server (server.ts) serves the web UI and runs the production prediction logic.
+- If a trained RandomForest model (model.pkl) is available, the server uses it and returns feature importances. If not, a deterministic weighted fallback (normalized features + logistic mapping) computes probabilities.
+- The UI is a stepper form that guides students through inputs and shows interactive visualizations, a recovery-sandbox for simulations, and downloadable reports.
+- A survey analytics endpoint parses survey CSV data to provide cohort-level context and correlations.
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Key features & files:
+- server.ts — canonical runtime (Node.js + TypeScript) for serving the web UI and API.
+- app.py — auxiliary Flask runtime kept for prototyping/training.
+- train_model.py — model training utilities (Python).
+- templates/index.html + static/* — frontend UI and assets.
+- survey_responses.csv — committed survey dataset (kept as-is per your instruction).
+- scripts/generate_synthetic_survey.py — new script to produce synthetic survey data for testing without exposing real records.
