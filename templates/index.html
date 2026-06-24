@@ -382,7 +382,7 @@
           </button>
           
           <button type="submit" id="execute-btn" class="hidden w-full px-6 py-3.5 rounded-xl bg-gradient-to-r from-aui-gold to-aui-goldLight hover:from-amber-500 hover:to-yellow-450 text-slate-950 font-extrabold text-sm shadow-xl tracking-wider uppercase transition duration-350 focus:outline-none text-center cursor-pointer transform hover:scale-[1.01] active:scale-[0.99]">
-            Execute Predictive Engine
+            Run Prediction
           </button>
         </div>
         
@@ -402,9 +402,9 @@
           </svg>
         </div>
         <div class="max-w-md mx-auto space-y-3">
-          <h2 class="text-lg font-extrabold text-[#F8FAFC] tracking-tight">Awaiting Feature Vector Initialization</h2>
+          <h2 class="text-lg font-extrabold text-[#F8FAFC] tracking-tight">Ready — enter student details to predict outcome</h2>
           <p class="text-sm text-slate-300 font-medium leading-relaxed">
-            The Random Forest inference engine is resting in an optimal state. Configure the diagnostic metrics on the left and click 'Execute Predictive Engine' to map the student profile to the classification matrix.
+            The inference engine is ready. Configure the metrics on the left and click 'Run Prediction' to analyze the student profile.
           </p>
         </div>
         <div class="pt-4 border-t border-slate-800/60 w-full max-w-xs mx-auto">
@@ -1398,6 +1398,9 @@
     </div>
   </footer>
 
+  <!-- Accessibility Announcer -->
+  <div id="result-announcer" aria-live="polite" role="status" class="sr-only"></div>
+
   <!-- Vanilla script layer handling active interactions -->
   <script>
     // Config state representing current progress steps
@@ -1460,46 +1463,46 @@
         const waecVal = parseInt(document.getElementById('waec_score').value);
         const jambVal = parseInt(document.getElementById('jamb_score').value);
         if (!lvStr) {
-          showFormNotification("Academic Level Profile indicator is missing. Choose student level.", "error");
+          showFormNotification("Please select a student level.", "error");
           return false;
         }
         if (isNaN(waecVal) || waecVal < 1 || waecVal > 10) {
-          showFormNotification("WAEC score is invalid or out of mathematical bounds.", "error");
+          showFormNotification("WAEC score must be between 1 and 10.", "error");
           return false;
         }
         if (isNaN(jambVal) || jambVal < 100 || jambVal > 400) {
-          showFormNotification("JAMB entrance examination score must reside between 100 and 400.", "error");
+          showFormNotification("JAMB score must be between 100 and 400.", "error");
           return false;
         }
-        showFormNotification("Student baseline vectors verified. Standard profile standing is unlocked.", "success");
+        showFormNotification("Academic standing is confirmed.", "success");
         return true;
       }
       if (step === 2) {
         const gpaVal = parseFloat(document.getElementById('first_sem_gpa').value);
         const internalVal = parseInt(document.getElementById('internal_test_score').value);
         if (isNaN(gpaVal) || gpaVal < 0 || gpaVal > 5.0) {
-          showFormNotification("Cumulative GPA parameter is outside legal scale of 0.0 - 5.0.", "error");
+          showFormNotification("GPA must be between 0.0 and 5.0.", "error");
           return false;
         }
         if (isNaN(internalVal) || internalVal < 1 || internalVal > 30) {
-          showFormNotification("Continuous Assessment (CA) standing is outside legal scale of 1 - 30.", "error");
+          showFormNotification("Continuous Assessment (CA) must be between 1 and 30.", "error");
           return false;
         }
-        showFormNotification("Core academic standing vectors confirmed. Unlocking lecture participation parameters...", "success");
+        showFormNotification("Academic standing vectors confirmed.", "success");
         return true;
       }
       if (step === 3) {
         const attendanceVal = parseInt(document.getElementById('attendance_pct').value);
         const assignmentVal = parseFloat(document.getElementById('assignment_rate').value);
         if (isNaN(attendanceVal) || attendanceVal < 40 || attendanceVal > 100) {
-          showFormNotification("Physical attendance rating index is outside legal scale of 40% - 100%.", "error");
+          showFormNotification("Attendance must be between 40% and 100%.", "error");
           return false;
         }
         if (isNaN(assignmentVal) || assignmentVal < 0 || assignmentVal > 1) {
-          showFormNotification("Assignment submissions quotient is out of legal bounds.", "error");
+          showFormNotification("Assignment rate must be between 0.0 and 1.0.", "error");
           return false;
         }
-        showFormNotification("Lecture attendance and interactive metrics integrated. Unlocking curriculum resilience parameters...", "success");
+        showFormNotification("Participation parameters integrated.", "success");
         return true;
       }
       return true;
@@ -1533,6 +1536,10 @@
           nextCard.classList.remove('opacity-0', 'translate-y-4');
           nextCard.classList.add('opacity-100');
           nextCard.style.pointerEvents = "auto";
+          
+          // Move focus to first input of the new card
+          const firstInput = nextCard.querySelector('input, select');
+          if (firstInput) firstInput.focus();
         }, 50);
         
         // Update Buttons configuration
@@ -1670,6 +1677,15 @@
           // Save inputs for sandbox what-if solver
           window.currentPredictionInputs = { ...formData };
           
+          // Update ARIA live region
+          const announcer = document.getElementById('result-announcer');
+          if (announcer) {
+            announcer.innerText = `Prediction: ${data.prediction_class === 1 ? 'High Academic Stand' : 'At Risk'}. Confidence: ${formattedConfidence}%`;
+            // Also move focus to results for accessibility
+            stateResults.focus();
+            stateResults.setAttribute('tabindex', '-1');
+          }
+
           // Populate primary diagnostic outcomes
           const classification = document.getElementById('result-classification');
           const confidence = document.getElementById('result-confidence');
@@ -2718,6 +2734,22 @@
     document.addEventListener("DOMContentLoaded", function() {
       // Hook level element change for immediate load if default is changes
       handleStudentLevelChange();
+
+      // Keyboard support to advance step on enter
+      document.getElementById('prediction-form').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (currentStep < totalSteps) {
+            navigateStep(1);
+          } else {
+            // Submit form
+            const executeBtn = document.getElementById('execute-btn');
+            if (executeBtn && !executeBtn.classList.contains('hidden')) {
+               executeBtn.click();
+            }
+          }
+        }
+      });
     });
   </script>
 </body>
